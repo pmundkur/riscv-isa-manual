@@ -1,0 +1,56 @@
+\lstdefinelanguage{sail}
+  { morekeywords={val,function,cast,type,forall,overload,operator,enum,union,undefined,exit,and,assert,sizeof,
+      scattered,register,inc,dec,if,then,else,effect,let,as,@,in,end,Type,Int,Order,match,clause,struct},
+    keywordstyle={\bf\ttfamily},
+    morestring=[b]'',
+    stringstyle={\ttfamily\color{red}},
+    morecomment=[l][\itshape\color{DarkGreen}]{//},
+    morecomment=[s][\itshape\color{DarkGreen}]{/*}{*/},
+    deletestring=[bd]{'},
+    escapechar=\#,
+    emphstyle={\it},
+    literate=
+      {\{|}{{$\{|$}}1
+      {|\}}{{$|\}$}}1
+  }
+
+\newboolean{SAIL}
+\setboolean{SAIL}{true}
+%\setboolean{SAIL}{false}
+
+\ifthenelse{\boolean{SAIL}}{
+  \input{sail_ltx/commands.tex}
+  \usepackage[scaled=0.82]{beramono}
+
+  \newcommand{\sailcode}[1]{\csname sailfnexecute#1\endcsname}
+
+  % experimental version for 2018-07 sail:
+  \newcommand{\Sailcode}[1]{
+    \lstinputlisting[language=sail]{#1}
+    \hrulefill
+  }
+  \newcommand{\sailnote}[1]{#1}
+  \newcommand{\sailval}[1]{\csname sail#1\endcsname}
+  \newcommand{\sailvalandfun}[1]{\csname sail#1\endcsname \csname sailfn#1\endcsname}
+} % else not SAIL
+{
+  \newcommand{\sailcode}[1]{}
+  \newcommand{\sailnote}[1]{}
+  \newcommand{\sailval}[1]{}
+  \newcommand{\sailvalandfun}[1]{}
+}
+
+\newcommand{\sailwithnote}[2]{\sailnote{#1}\sailcode{#2}}
+
+\newenvironment{formalspec}
+{ \vspace{-0.2in}
+  \begin{quotation}
+  \noindent
+  \small \em
+  \rule{\linewidth}{1pt}\\
+}
+{
+  \rule{\linewidth}{1pt}
+  \end{quotation}
+  \vspace{-0.2in}
+}

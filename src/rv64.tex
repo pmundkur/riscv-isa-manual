@@ -115,6 +115,10 @@ with $imm[5] \neq 0$ are reserved.
   reserved.  This is a backwards-compatible change.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfnexecuteSHIFTIWOP
+\end{formalspec}
+
 \vspace{-0.2in}
 \begin{center}
 \begin{tabular}{U@{}R@{}O}
@@ -187,6 +191,10 @@ held in register {\em rs2}.  In RV64I, only the low 6 bits of {\em
 SLLW, SRLW, and SRAW are RV64I-only instructions that are analogously
 defined but operate on 32-bit values and produce signed 32-bit
 results.  The shift amount is given by {\em rs2[4:0]}.
+
+\begin{formalspec}
+  \sailfnexecuteRTYPEW
+\end{formalspec}
 
 \section{Load and Store Instructions}
 

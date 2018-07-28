@@ -509,6 +509,10 @@ and place the result in {\em rd}.  Note, XORI {\em rd, rs1, -1}
 performs a bitwise logical inversion of register {\em rs1} (assembler
 pseudoinstruction NOT {\em rd, rs}).
 
+\begin{formalspec}
+  \sailfnexecuteITYPE
+\end{formalspec}
+
 \vspace{-0.2in}
 \begin{center}
 \begin{tabular}{S@{}R@{}R@{}S@{}R@{}O}
@@ -542,6 +546,10 @@ SLLI is a logical left shift (zeros are shifted into the lower bits);
 SRLI is a logical right shift (zeros are shifted into the upper bits);
 and SRAI is an arithmetic right shift (the original sign bit is copied
 into the vacated upper bits).
+
+\begin{formalspec}
+  \sailfnexecuteSHIFTIOP
+\end{formalspec}
 
 \vspace{-0.2in}
 \begin{center}
@@ -585,6 +593,10 @@ PC (of the instruction following the JAL), it might cause pipeline
 breaks in simpler microarchitectures or pollute BTB structures in more
 complex microarchitectures.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfnexecuteUTYPE
+\end{formalspec}
 
 \subsubsection*{Integer Register-Register Operations}
 
@@ -632,6 +644,10 @@ XOR perform bitwise logical operations.
 SLL, SRL, and SRA perform logical left, logical right, and arithmetic
 right shifts on the value in register {\em rs1} by the shift amount
 held in the lower 5 bits of register {\em rs2}.
+
+\begin{formalspec}
+  \sailfnexecuteRTYPE
+\end{formalspec}
 
 \subsubsection*{NOP Instruction}
 \vspace{-0.4in}
@@ -795,6 +811,11 @@ The JAL and JALR instructions will generate an
 instruction-address-misaligned exception if the target address is not
 aligned to a four-byte boundary.
 
+\begin{formalspec}
+  \sailfnexecuteRISCVJAL
+  \sailfnexecuteRISCVJALR
+\end{formalspec}
+
 \begin{commentary}
 Instruction-address-misaligned exceptions are not possible on machines
 that support extensions with 16-bit aligned instructions, such as the
@@ -888,6 +909,10 @@ BGEU take the branch if {\em rs1} is greater than or equal to {\em rs2},
 using signed and unsigned comparison respectively. Note, BGT, BGTU,
 BLE, and BLEU can be synthesized by reversing the operands to BLT,
 BLTU, BGE, and BGEU, respectively.
+
+\begin{formalspec}
+  \sailfnexecuteBTYPE
+\end{formalspec}
 
 \begin{commentary}
 Signed array bounds may be checked with a single BLTU instruction, since
@@ -1119,6 +1144,11 @@ are aligned.
 \end{commentary}
 
 \pagebreak
+
+\begin{formalspec}
+  \sailfnexecuteECALL
+  \sailfnexecuteEBREAK
+\end{formalspec}
 
 \section{Memory Ordering Instructions}
 \label{sec:fence}
