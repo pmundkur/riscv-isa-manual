@@ -1,0 +1,53 @@
+\section{Formal Instruction Specification}
+
+This version of the document embeds a formal description of some
+instruction semantics as specified in the Sail ISA description
+language\cite{sail-site}.  The description is generated directly from
+the Sail sources of the RISC-V model.
+
+The Sail model of RISC-V currently implements the RV64IMAC dialect,
+the user, supervisor and machine privilege levels, and the Sv39
+address translation mode.  It passes the \texttt{riscv-tests} test
+suite, and is capable of booting Linux and seL4.
+
+The formal descriptions follow the instructions they describe, and
+form the clauses of an \textit{execute} function that describe the
+semantics of executing that instruction.  The boolean value returned
+by these clauses indicate whether that instruction retired
+successfully.
+
+Some frequently used Sail language constructs are described in the
+table below.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{|l|l|} \cline{1-2}
+      \textbf{PC}            & Current program counter \\ \cline{1-2}
+      \textbf{newPC}         & Next value of program counter \\ \cline{1-2}
+      \textbf{X}             & Integer register file \\ \cline{1-2}
+      \textbf{X}(r)          & Read of register $r$  \\ \cline{1-2}
+      \textbf{wX}(r),\textbf{X}(r) & Write of register $r$ \\ \cline{1-2}
+      \textbf{EXTS}($\cdot$) & Sign-extension to inferred width \\ \cline{1-2}
+      \textbf{EXTZ}($\cdot$) & Zero-extension to inferred width \\ \cline{1-2}
+      \textbf{v}[h..l]       & Bit-field selection (from high h to low l) \\ \cline{1-2}
+    \end{tabular}
+  \end{center}
+\end{table}
+
+The formal description included in this draft omits a fair amount of
+the Sail model, especially concerning the portions that interact with
+the more privileged modes.  The portions omitted include:
+
+\begin{itemize}
+\item A description of the fetch-execute loop.  This sets \textbf{PC}
+  to the instruction $i$ to execute, and \textbf{nextPC} is set to the
+  address of following instruction given the width of $i$.  The Sail
+  instruction extracts included in this document update
+  \textbf{nextPC} if it needs to change from that value.
+\item An expansion of the functions that perform address translation
+  or dispatch exceptions.
+\item Although the Sail model implements the RVC extension, its
+  description is not included.
+\item Instructions that access user-mode visible CSRs are not included
+  (RDCYCLE, RDINSTRET, RDTIME).
+\end{itemize}

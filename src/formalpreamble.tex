@@ -1,3 +1,17 @@
+%%%%%%%%
+% for Sail listing
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.82]{beramono}
+\usepackage{amssymb}
+
+\lstset{
+% basicstyle=\ttfamily\small,
+  basicstyle=\renewcommand{\baselinestretch}{0.9}\ttfamily\small,
+  columns=fullflexible,
+  breaklines=true,
+  postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
+}
+
 \lstdefinelanguage{sail}
   { morekeywords={val,function,cast,type,forall,overload,operator,enum,union,undefined,exit,and,assert,sizeof,
       scattered,register,inc,dec,if,then,else,effect,let,as,@,in,end,Type,Int,Order,match,clause,struct},
