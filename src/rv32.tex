@@ -510,7 +510,7 @@ performs a bitwise logical inversion of register {\em rs1} (assembler
 pseudoinstruction NOT {\em rd, rs}).
 
 \begin{formalspec}
-  \sailfnexecuteITYPE
+  \sailfclITYPEexecute
 \end{formalspec}
 
 \vspace{-0.2in}
@@ -548,7 +548,7 @@ and SRAI is an arithmetic right shift (the original sign bit is copied
 into the vacated upper bits).
 
 \begin{formalspec}
-  \sailfnexecuteSHIFTIOP
+  \sailfclSHIFTIOPexecute
 \end{formalspec}
 
 \vspace{-0.2in}
@@ -595,7 +595,7 @@ complex microarchitectures.
 \end{commentary}
 
 \begin{formalspec}
-  \sailfnexecuteUTYPE
+  \sailfclUTYPEexecute
 \end{formalspec}
 
 \subsubsection*{Integer Register-Register Operations}
@@ -646,7 +646,7 @@ right shifts on the value in register {\em rs1} by the shift amount
 held in the lower 5 bits of register {\em rs2}.
 
 \begin{formalspec}
-  \sailfnexecuteRTYPE
+  \sailfclRTYPEexecute
 \end{formalspec}
 
 \subsubsection*{NOP Instruction}
@@ -812,8 +812,8 @@ instruction-address-misaligned exception if the target address is not
 aligned to a four-byte boundary.
 
 \begin{formalspec}
-  \sailfnexecuteRISCVJAL
-  \sailfnexecuteRISCVJALR
+  \sailfclRISCVUnderscoreJALexecute
+  \sailfclRISCVUnderscoreJALRexecute
 \end{formalspec}
 
 \begin{commentary}
@@ -911,7 +911,7 @@ BLE, and BLEU can be synthesized by reversing the operands to BLT,
 BLTU, BGE, and BGEU, respectively.
 
 \begin{formalspec}
-  \sailfnexecuteBTYPE
+  \sailfclBTYPEexecute
 \end{formalspec}
 
 \begin{commentary}
@@ -1146,8 +1146,8 @@ are aligned.
 \pagebreak
 
 \begin{formalspec}
-  \sailfnexecuteECALL
-  \sailfnexecuteEBREAK
+  \sailfclECALLexecute
+  \sailfclEBREAKexecute
 \end{formalspec}
 
 \section{Memory Ordering Instructions}

@@ -27,6 +27,10 @@ srcs = $(wildcard $(srcdir)/*.tex)
 figs = $(wildcard $(srcdir)/figs/*)
 bibs = $(srcdir)/riscv-spec.bib
 
+ifeq ($(SAIL_RISCV_TOP),)
+  $(error Please set SAIL_RISCV_TOP in your environment to point to the sail-riscv directory.)
+endif
+
 #=======================================================================
 # You shouldn't need to change anything below this
 #=======================================================================
@@ -44,18 +48,23 @@ pdfs_without_bib = $(addsuffix .pdf, $(docs_without_bib))
 pdfs = $(pdfs_with_bib) $(pdfs_without_bib)
 
 pdf : $(pdfs)
-.PHONY: pdf open
+.PHONY: locate_sail_riscv pdf open
+
+locate_sail_riscv: generated_definitions
+
+generated_definitions:
+	ln -s $(SAIL_RISCV_TOP)/generated_definitions generated_definitions
 
 open: $(pdfs)
 	open $(pdfs)
 
-$(pdfs_with_bib): %.pdf: $(srcdir)/%.tex $(srcs) $(figs) $(bibs)
+$(pdfs_with_bib): %.pdf: locate_sail_riscv $(srcdir)/%.tex $(srcs) $(figs) $(bibs)
 	$(PDFLATEX) $*
 	$(BIBTEX) $*
 	$(PDFLATEX) $*
 	$(PDFLATEX) $*
 
-$(pdfs_without_bib): %.pdf: $(srcdir)/%.tex $(srcs) $(figs)
+$(pdfs_without_bib): %.pdf: locate_sail_riscv $(srcdir)/%.tex $(srcs) $(figs)
 	$(PDFLATEX) $*
 	$(PDFLATEX) $*
 

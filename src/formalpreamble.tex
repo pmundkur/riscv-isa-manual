@@ -4,26 +4,32 @@
 \usepackage[scaled=0.82]{beramono}
 \usepackage{amssymb}
 
-\lstset{
+% Set default Sail source parameters as a style,
+% to avoid conflicts with other sources.
+\lstdefinestyle{saildefault}{
 % basicstyle=\ttfamily\small,
   basicstyle=\renewcommand{\baselinestretch}{0.9}\ttfamily\small,
+  numbers=left,numberstyle=\tiny,numbersep=5pt,
   columns=fullflexible,
   breaklines=true,
   postbreak=\mbox{\textcolor{red}{$\hookrightarrow$}\space},
 }
 
 \lstdefinelanguage{sail}
-  { morekeywords={val,function,cast,type,forall,overload,operator,enum,union,undefined,exit,and,assert,sizeof,
-      scattered,register,inc,dec,if,then,else,effect,let,as,@,in,end,Type,Int,Order,match,clause,struct},
-    keywordstyle={\bf\ttfamily},
-    morestring=[b]'',
-    stringstyle={\ttfamily\color{red}},
-    morecomment=[l][\itshape\color{DarkGreen}]{//},
-    morecomment=[s][\itshape\color{DarkGreen}]{/*}{*/},
-    deletestring=[bd]{'},
-    escapechar=\#,
-    emphstyle={\it},
-    literate=
+  {style=saildefault,
+   morekeywords={val,function,cast,type,forall,overload,operator,
+                 enum,union,undefined,exit,and,assert,sizeof,
+                 scattered,register,inc,dec,if,then,else,effect,
+                 let,as,@,in,end,Type,Int,Order,match,clause,struct},
+   keywordstyle={\bf\ttfamily},
+   morestring=[b]'',
+   stringstyle={\ttfamily\color{red}},
+   morecomment=[l][\itshape\color{DarkGreen}]{//},
+   morecomment=[s][\itshape\color{DarkGreen}]{/*}{*/},
+   deletestring=[bd]{'},
+   escapechar=\#,
+   emphstyle={\it},
+   literate=
       {\{|}{{$\{|$}}1
       {|\}}{{$|\}$}}1
   }
@@ -33,28 +39,16 @@
 %\setboolean{SAIL}{false}
 
 \ifthenelse{\boolean{SAIL}}{
-  \input{sail_ltx/commands.tex}
+  \input{generated_definitions/latex/commands.tex}
   \usepackage[scaled=0.82]{beramono}
+  % Define macros used in the Sail-generated latex.
+  \newcommand{\saildocfcl}[2]{#1 #2}
 
-  \newcommand{\sailcode}[1]{\csname sailfnexecute#1\endcsname}
-
-  % experimental version for 2018-07 sail:
-  \newcommand{\Sailcode}[1]{
-    \lstinputlisting[language=sail]{#1}
-    \hrulefill
-  }
-  \newcommand{\sailnote}[1]{#1}
-  \newcommand{\sailval}[1]{\csname sail#1\endcsname}
-  \newcommand{\sailvalandfun}[1]{\csname sail#1\endcsname \csname sailfn#1\endcsname}
+  % Define other macros that we use manually in the documentation.
 } % else not SAIL
 {
-  \newcommand{\sailcode}[1]{}
-  \newcommand{\sailnote}[1]{}
-  \newcommand{\sailval}[1]{}
-  \newcommand{\sailvalandfun}[1]{}
+  \newcommand{\saildocfcl}[2]{}
 }
-
-\newcommand{\sailwithnote}[2]{\sailnote{#1}\sailcode{#2}}
 
 \newenvironment{formalspec}
 { \vspace{-0.2in}
