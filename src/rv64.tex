@@ -65,6 +65,10 @@ ADDIW {\em rd, rs1, 0} writes the sign-extension of the lower 32 bits
 of register {\em rs1} into register {\em rd} (assembler pseudoinstruction
 SEXT.W).
 
+\begin{formalspec}
+  \sailfclADDIWexecute
+\end{formalspec}
+
 \vspace{-0.2in}
 \begin{center}
 \begin{tabular}{R@{}W@{}R@{}R@{}R@{}R@{}O}
@@ -119,6 +123,10 @@ with $imm[5] \neq 0$ are reserved.
   \sailfclSHIFTIWOPexecute
 \end{formalspec}
 
+The formal definitions of SLLI, SRLI, and SRAI are the same as the
+RV32 case on page~\pageref{lbl:shiftimm32}.
+%%% SAIL-TODO: check this.
+
 \vspace{-0.2in}
 \begin{center}
 \begin{tabular}{U@{}R@{}O}
@@ -148,6 +156,10 @@ AUIPC (add upper immediate to {\tt pc}) is used to build {\tt
 low-order zero bits to the 20-bit U-immediate, sign-extends the result
 to 64 bits, then adds it to the {\tt pc} and places the result in
 register {\em rd}.
+
+\begin{formalspec}
+  \sailfclUTYPEexecute
+\end{formalspec}
 
 \subsubsection*{Integer Register-Register Operations}
 
@@ -195,6 +207,10 @@ results.  The shift amount is given by {\em rs2[4:0]}.
 \begin{formalspec}
   \sailfclRTYPEWexecute
 \end{formalspec}
+
+The formal definitions of SLL, SRL, and SRA are the same as the
+RV32 case on page~\pageref{lbl:shift32}.
+%%% SAIL-TODO: check this.
 
 \section{Load and Store Instructions}
 
@@ -255,6 +271,10 @@ memory for RV64I.  LH and LHU are defined analogously for 16-bit
 values, as are LB and LBU for 8-bit values.  The SD, SW, SH, and SB
 instructions store 64-bit, 32-bit, 16-bit, and 8-bit values from the
 low bits of register {\em rs2} to memory respectively.
+
+The formal definitions of LOAD and STORE are the same as the RV32 case
+on page~\pageref{lbl:ldst32}.
+%%% SAIL-TODO: check this.
 
 \section{HINT Instructions}
 \label{sec:rv64i-hints}

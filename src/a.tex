@@ -271,6 +271,16 @@ memory buffer along the lines of the original transactional memory
 proposals as an optional standard extension ``T''.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfnprocessLoadres
+  \sailfclLOADRESexecute
+  \sailfclSTORECONexecute
+\end{formalspec}
+
+The functions \sailfname{load\_reservation()} and
+\sailfname{cancel\_reservation()} are platform-dependent and
+are external to the formal specification.
+
 \section{Atomic Memory Operations}
 \label{sec:amo}
 
@@ -402,3 +412,8 @@ sequentially consistent loads and stores.  A sequentially consistent load can
 be implemented as an LR with both {\em aq} and {\em rl} set. A sequentially
 consistent store can be implemented as an AMOSWAP that writes the old value to
 x0 and has both {\em aq} and {\em rl} set.
+
+\begin{formalspec}
+  \sailfclAMOexecute
+\end{formalspec}
+%%% SAIL-TODO: explain the mapping of the clause to each instruction.

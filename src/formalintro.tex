@@ -1,9 +1,10 @@
 \section{Formal Instruction Specification}
 
-This version of the document embeds a formal description of some
+This version of the document embeds a formal description of selected
 instruction semantics as specified in the Sail ISA description
-language\cite{sail-site}.  The description is generated directly from
-the Sail sources of the RISC-V model.
+language\cite{sail-site}, specifically those of RV64IMAC.  The
+description is generated directly from the Sail sources of the RISC-V
+model, available at \url{https://github.com/rems-project/sail-riscv}.
 
 The Sail model of RISC-V currently implements the RV64IMAC dialect,
 the user, supervisor and machine privilege levels, and the Sv39
@@ -22,17 +23,20 @@ table below.
 \begin{table}[h]
   \begin{center}
     \begin{tabular}{|l|l|} \cline{1-2}
-      \textbf{PC}            & Current program counter \\ \cline{1-2}
-      \textbf{newPC}         & Next value of program counter \\ \cline{1-2}
-      \textbf{X}             & Integer register file \\ \cline{1-2}
-      \textbf{X}(r)          & Read of register $r$  \\ \cline{1-2}
-      \textbf{wX}(r),\textbf{X}(r) & Write of register $r$ \\ \cline{1-2}
-      \textbf{EXTS}($\cdot$) & Sign-extension to inferred width \\ \cline{1-2}
-      \textbf{EXTZ}($\cdot$) & Zero-extension to inferred width \\ \cline{1-2}
-      \textbf{v}[h..l]       & Bit-field selection (from high h to low l) \\ \cline{1-2}
+      \sailfname{PC}                & Current program counter \\ \cline{1-2}
+      \sailfname{newPC}             & Next value of program counter \\ \cline{1-2}
+      \sailfname{X}                 & Integer register file \\ \cline{1-2}
+      \sailfname{X}(r)              & Integer register $r$  \\ \cline{1-2}
+      \sailfname{zreg}              & Register $0$ \\  \cline{1-2}
+      \sailfname{EXTS}($\cdot$)     & Sign-extension to inferred width \\ \cline{1-2}
+      \sailfname{EXTZ}($\cdot$)     & Zero-extension to inferred width \\ \cline{1-2}
+      \sailfname{v}[h..l]           & Bit-field selection (from high h to low l) \\ \cline{1-2}
+      \sailfname{creg2reg\_bits()}  & Mapper from 3-bit RVC register number to 5-bit RV register number \\ \cline{1-2}
     \end{tabular}
   \end{center}
 \end{table}
+
+%%% SAIL-TODO: add signed, unsigned, quot_round_zero, rem_round_zero, xlen_max-signed, xlen_min-signed.
 
 The formal description included in this draft omits a fair amount of
 the Sail model, especially concerning the portions that interact with
@@ -44,10 +48,12 @@ the more privileged modes.  The portions omitted include:
   address of following instruction given the width of $i$.  The Sail
   instruction extracts included in this document update
   \textbf{nextPC} if it needs to change from that value.
-\item An expansion of the functions that perform address translation
-  or dispatch exceptions.
-\item Although the Sail model implements the RVC extension, its
-  description is not included.
+\item An expansion of the functions that access physical memory
+  (\sailfname{mem\_read},\sailfname{mem\_write\_value}), perform address
+  translation (\sailfname{translateAddr}), and dispatch exceptions
+  (\sailfname{handle\_mem\_exception}, \sailfname{handle\_exception}).
+\item Formal definitions of instructions that are RV32-only (e.g. in
+  the RVC extension).
 \item Instructions that access user-mode visible CSRs are not included
   (RDCYCLE, RDINSTRET, RDTIME).
 \end{itemize}

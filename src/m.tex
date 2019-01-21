@@ -70,6 +70,11 @@ arguments are not known to be sign- or zero-extended, an alternative is to
 shift both arguments left by 32 bits, then use MULH[[S]U].
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclMULexecute
+\end{formalspec}
+%%% SAIL-TODO: explain the mapping of the clause to each instruction.
+
 \section{Division Operations}
 
 \vspace{-0.2in}
@@ -160,3 +165,9 @@ unsigned divider implementations.  Signed division is often
 implemented using an unsigned division circuit and specifying the same
 overflow result simplifies the hardware.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclDIVexecute
+  \sailfclREMexecute
+\end{formalspec}
+%%% SAIL-TODO: explain the mapping of the clause to each instruction.

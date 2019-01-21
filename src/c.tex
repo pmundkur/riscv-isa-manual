@@ -425,7 +425,12 @@ C.FLDSP is an RV32DC/RV64DC-only instruction that loads a double-precision
 floating-point value from memory into floating-point register {\em rd}. It
 computes its effective address by adding the {\em zero}-extended offset,
 scaled by 8, to the stack pointer, {\tt x2}.  It expands to {\tt fld rd,
-offset[8:3](x2)}.
+  offset[8:3](x2)}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreLWSPexecute
+  \sailfclCUnderscoreLDSPexecute
+\end{formalspec}
 
 \begin{center}
 \begin{tabular}{S@{}M@{}T@{}Y}
@@ -517,6 +522,11 @@ software-only approach of calling save/restore millicode routines to
 attain the greatest code size reduction.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclCUnderscoreSWSPexecute
+  \sailfclCUnderscoreSDSPexecute
+\end{formalspec}
+
 \subsection*{Register-Based Loads and Stores}
 
 \begin{center}
@@ -575,6 +585,11 @@ computes an effective address by adding the {\em zero}-extended offset, scaled
 by 8, to the base address in register {\em \rsoneprime}.  It expands to {\tt fld
 \rdprime, offset[7:3](\rsoneprime)}.
 
+\begin{formalspec}
+  \sailfclCUnderscoreLWexecute
+  \sailfclCUnderscoreLDexecute
+\end{formalspec}
+
 \begin{center}
 \begin{tabular}{S@{}S@{}S@{}Y@{}S@{}Y}
 \\
@@ -631,6 +646,11 @@ computes an effective address by adding the {\em zero}-extended offset, scaled
 by 8, to the base address in register {\em \rsoneprime}.  It expands to {\tt fsd
 \rstwoprime, offset[7:3](\rsoneprime)}.
 
+\begin{formalspec}
+  \sailfclCUnderscoreSWexecute
+  \sailfclCUnderscoreSDexecute
+\end{formalspec}
+
 \section{Control Transfer Instructions}
 
 RVC provides unconditional jump instructions and conditional branch
@@ -662,7 +682,11 @@ a $\pm$\wunits{2}{KiB} range.  C.J expands to {\tt jal x0, offset[11:1]}.
 C.JAL is an RV32C-only instruction that performs the same operation as C.J,
 but additionally writes the address of the instruction following the jump
 ({\tt pc}+2) to the link register, {\tt x1}.  C.JAL expands to {\tt jal x1,
-offset[11:1]}.
+  offset[11:1]}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreJexecute
+\end{formalspec}
 
 \begin{center}
 \begin{tabular}{E@{}T@{}T@{}Y}
@@ -699,6 +723,11 @@ rather than 4 as in the base ISA, but supporting both offsets of 2 and
 4 bytes is only a very minor change to the base microarchitecture.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclCUnderscoreJRexecute
+  \sailfclCUnderscoreJALRexecute
+\end{formalspec}
+
 \begin{center}
 \begin{tabular}{S@{}S@{}S@{}T@{}Y}
 \\
@@ -729,6 +758,11 @@ offset[8:1]}.
 
 C.BNEZ is defined analogously, but it takes the branch if {\em \rsoneprime} contains
 a nonzero value.  It expands to {\tt bne \rsoneprime, x0, offset[8:1]}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreBEQZexecute
+  \sailfclCUnderscoreBNEZexecute
+\end{formalspec}
 
 \section{Integer Computational Instructions}
 
@@ -770,6 +804,11 @@ destination register, clears the bottom 12 bits, and sign-extends bit
 $\textit{rd}{\neq}{\left\{\texttt{x0},\texttt{x2}\right\}}$,
 and when the immediate is not equal to zero.
 C.LUI expands into {\tt lui rd, nzimm[17:12]}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreLIexecute
+  \sailfclCUnderscoreLUIexecute
+\end{formalspec}
 
 \subsection*{Integer Register-Immediate Operations}
 
@@ -823,6 +862,12 @@ In the standard RISC-V calling convention, the stack pointer {\tt sp}
 is always 16-byte aligned.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclCUnderscoreADDIexecute
+  \sailfclCUnderscoreADDIWexecute
+  \sailfclCUnderscoreADDIOneSixSPexecute
+\end{formalspec}
+
 \begin{center}
 \begin{tabular}{@{}S@{}K@{}S@{}Y}
 \\
@@ -847,6 +892,9 @@ writes the result to {\tt \rdprime}.  This instruction is used
 to generate pointers to stack-allocated variables, and expands to
 {\tt addi \rdprime, x2, nzuimm[9:2]}.
 
+\begin{formalspec}
+  \sailfclCUnderscoreADDIFourSPNexecute
+\end{formalspec}
 
 \vspace{-0.4in}
 \begin{center}
@@ -877,6 +925,10 @@ amount must be non-zero.  For RV128C, a shift amount of zero is used
 to encode a shift of 64.  C.SLLI expands into {\tt slli rd, rd,
   shamt[5:0]}, except for RV128C with {\tt shamt=0}, which expands to
 {\tt slli rd, rd, 64}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreSLLIexecute
+\end{formalspec}
 
 \vspace{-0.4in}
 \begin{center}
@@ -931,6 +983,11 @@ point as RV32C and RV64C, to allow evaluation of typical usage of
 128-bit address-space codes.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclCUnderscoreSRLIexecute
+  \sailfclCUnderscoreSRAIexecute
+\end{formalspec}
+
 \begin{center}
 \begin{tabular}{S@{}W@{}Y@{}S@{}T@{}Y}
 \\
@@ -957,6 +1014,10 @@ C.ANDI is a CB-format instruction that computes the bitwise AND of
 the value in register {\em \rdprime} and the sign-extended 6-bit immediate,
 then writes the result to {\em \rdprime}.
 C.ANDI expands to {\tt andi \rdprime, \rdprime, imm[5:0]}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreANDIexecute
+\end{formalspec}
 
 \subsection*{Integer Register-Register Operations}
 \vspace{-0.4in}
@@ -992,6 +1053,11 @@ to expand C.MV to MV instead of ADD, at slight additional hardware cost.
 
 C.ADD adds the values in registers {\em rd} and {\em rs2} and writes the
 result to register {\em rd}.  C.ADD expands into {\tt add rd, rd, rs2}.
+
+\begin{formalspec}
+  \sailfclCUnderscoreMVexecute
+  \sailfclCUnderscoreADDexecute
+\end{formalspec}
 
 \vspace{-0.4in}
 \begin{center}
@@ -1054,6 +1120,15 @@ straightforward to implement, and as a group provide a worthwhile
 improvement in static and dynamic compression.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclCUnderscoreANDexecute
+  \sailfclCUnderscoreORexecute
+  \sailfclCUnderscoreXORexecute
+  \sailfclCUnderscoreSUBexecute
+  \sailfclCUnderscoreADDWexecute
+  \sailfclCUnderscoreSUBWexecute
+\end{formalspec}
+
 \subsection*{Defined Illegal Instruction}
 \vspace{-0.4in}
 \begin{center}
@@ -1088,6 +1163,10 @@ variable-length encoding scheme) as illegal to capture another common
 value seen in non-existent memory regions.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclCUnderscoreILLEGALexecute
+\end{formalspec}
+
 \subsection*{NOP Instruction}
 \vspace{-0.4in}
 \begin{center}
@@ -1114,6 +1193,10 @@ C.NOP is a CI-format instruction that does not change any user-visible state,
 except for advancing the {\tt pc} and incrementing any applicable performance
 counters.  C.NOP expands to {\tt nop}.
 
+\begin{formalspec}
+  \sailfclCUnderscoreNOPexecute
+\end{formalspec}
+
 \subsection*{Breakpoint Instruction}
 \vspace{-0.4in}
 \begin{center}
@@ -1136,6 +1219,10 @@ Debuggers can use the C.EBREAK instruction, which expands to {\tt ebreak},
 to cause control to be transferred back to the debugging environment.
 C.EBREAK shares the opcode with the C.ADD instruction, but with {\em
   rd} and {\em rs2} both zero, thus can also use the CR format.
+
+\begin{formalspec}
+  \sailfclCUnderscoreEBREAKexecute
+\end{formalspec}
 
 \section{Usage of C Instructions in LR/SC Sequences}
 

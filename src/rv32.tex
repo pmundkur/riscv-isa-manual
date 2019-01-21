@@ -548,6 +548,7 @@ and SRAI is an arithmetic right shift (the original sign bit is copied
 into the vacated upper bits).
 
 \begin{formalspec}
+  \label{lbl:shiftimm32}
   \sailfclSHIFTIOPexecute
 \end{formalspec}
 
@@ -646,6 +647,7 @@ right shifts on the value in register {\em rs1} by the shift amount
 held in the lower 5 bits of register {\em rs2}.
 
 \begin{formalspec}
+  \label{lbl:shift32}
   \sailfclRTYPEexecute
 \end{formalspec}
 
@@ -807,14 +809,16 @@ an ABI could dedicate a general-purpose register to point to a library
 elsewhere in the address space.
 \end{commentary}
 
-The JAL and JALR instructions will generate an
-instruction-address-misaligned exception if the target address is not
-aligned to a four-byte boundary.
-
 \begin{formalspec}
   \sailfclRISCVUnderscoreJALexecute
   \sailfclRISCVUnderscoreJALRexecute
 \end{formalspec}
+
+%%% SAIL-TODO: add some commentary on the difference from the rmem definition.
+
+The JAL and JALR instructions will generate an
+instruction-address-misaligned exception if the target address is not
+aligned to a four-byte boundary.
 
 \begin{commentary}
 Instruction-address-misaligned exceptions are not possible on machines
@@ -910,14 +914,14 @@ using signed and unsigned comparison respectively. Note, BGT, BGTU,
 BLE, and BLEU can be synthesized by reversing the operands to BLT,
 BLTU, BGE, and BGEU, respectively.
 
-\begin{formalspec}
-  \sailfclBTYPEexecute
-\end{formalspec}
-
 \begin{commentary}
 Signed array bounds may be checked with a single BLTU instruction, since
 any negative index will compare greater than any nonnegative bound.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclBTYPEexecute
+\end{formalspec}
 
 Software should be optimized such that the sequential code path is the
 most common path, with less-frequently taken code paths placed out of
@@ -1143,12 +1147,18 @@ automatically optimize accesses depending on whether runtime addresses
 are aligned.
 \end{commentary}
 
-\pagebreak
-
 \begin{formalspec}
-  \sailfclECALLexecute
-  \sailfclEBREAKexecute
+  \label{lbl:ldst32}
+  \sailfnprocessLoad
+  \sailfclLOADexecute
+  \sailfclSTOREexecute
 \end{formalspec}
+
+%%% SAIL-TODO: add some explanation of write_ea, since that belongs to this volume of the spec.
+%\begin{commentary}
+%\end{commentary}
+
+\pagebreak
 
 \section{Memory Ordering Instructions}
 \label{sec:fence}
@@ -1234,7 +1244,7 @@ FENCE.
 
 The fence mode field {\em fm} defines the semantics of the FENCE.  A
 FENCE with {\em fm}=0000 orders all memory operations in its
-predecessor set before all memory operations in its successor set. 
+predecessor set before all memory operations in its successor set.
 
 The optional FENCE.TSO instruction with {\em fm}=1000 orders all load
 operations in its predecessor set before all memory operations in its
@@ -1269,6 +1279,11 @@ to control added coprocessors or I/O devices.  Simple implementations
 may additionally ignore the {\em predecessor} and {\em successor}
 fields and always execute a conservative fence on all operations.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclFENCEexecute
+  \sailfclFENCEUnderscoreTSOexecute
+\end{formalspec}
 
 \section{Environment Call and Breakpoints}
 
@@ -1362,6 +1377,11 @@ supervisor-level operating system or debugger.
    We note that ARM processors have also moved to using SVC instead of
    BKPT for semihosting calls in newer designs.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclECALLexecute
+  \sailfclEBREAKexecute
+\end{formalspec}
 
 \section{HINT Instructions}
 \label{sec:rv32i-hints}
