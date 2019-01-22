@@ -1,0 +1,155 @@
+\chapter{Formal Specification in Sail}
+\label{chap:priv-sail-model}
+
+%%% SAIL-TODO: add various forward references from earlier sections to this chapter.
+
+This appendix includes selections from the Sail formal model of the
+RISC-V ISA that highlight aspects of privileged mode operation.
+Please refer to the complete Sail model at
+\url{https://github.com/rems-project/sail-riscv} for details not
+covered in this section.
+
+\section{Basic Definitions}
+\label{s:priv-sail-basic-defs}
+
+For clarity, this section defines types and functions that commonly
+occur in the following sections.  \sailfname{ctl\_result} defines the
+type of control flow changes involving a privilege transition, where
+\sailfname{ExceptionType} is an enumeration of the values in
+Table~\ref{mcauses} on page~\pageref{mcauses}. \sailfname{tval}
+unwraps the value in optional \sailfname{excinfo} embedded in a
+\sailfname{sync\_exception}.  \sailfname{tvec\_addr} generates the
+trap vector address from the current value of the \sailfname{Mtvec}
+register.  \sailfname{checked\_mem\_read} and
+\sailfname{checked\_mem\_write} perform checked accesses to physical
+addresses.
+
+\begin{formalspec}
+  \sailfnprivLevelToBits
+  \sailtypesyncException
+  \sailtypectlResult
+  \sailfntval
+  \sailfntvecAddr
+  \sailfnpcAlignmentMask
+  \sailfncheckedMemRead
+  \sailfncheckedMemWrite
+\end{formalspec}
+
+\section{Privilege Transition Instructions}
+\label{s:priv-sail-instrs}
+
+The instructions that generate privilege transitions are implemented
+by generating the corresponding values of type
+\sailfname{ctl\_result}.  The handling of these values is described
+below in Section~\ref{s:priv-sail-traps}.
+
+\begin{formalspec}
+  \sailfclECALLexecute
+  \sailfclSRETexecute
+  \sailfclMRETexecute
+\end{formalspec}
+
+\section{CSR access control}
+\label{s:priv-sail-csr-access}
+
+These functions specify the access control checks for CSR registers
+when they are accessed by CSR instructions, and collect together in
+one location the CSR access checks described in various earlier
+sections of this volume.
+
+\begin{formalspec}
+  \sailfncsrAccess
+  \sailfncsrPriv
+  \sailfnisCSRDefined
+  \sailfncheckCSRAccess
+  \sailfncheckTVMSATP
+  \sailfncheckCounteren
+  \sailfncheckCSR
+\end{formalspec}
+
+\section{Interrupt Delegation and Dispatch}
+\label{s:priv-sail-intrs}
+
+\sailfname{curInterrupt} determines the interrupt that should be
+dispatched, if any, and the delegated dispatch privilege level, from
+the current values of the \sailfname{mip}, \sailfname{mie} and
+\sailfname{mstatus} registers and the current privilege level.  The
+model currently assumes that the S-mode is always enabled and does not
+model the N standard extension.
+
+\begin{formalspec}
+  \sailfnfindPendingInterrupt
+  \sailfncurInterrupt
+\end{formalspec}
+
+\section{Trap handling and privilege transition}
+\label{s:priv-sail-traps}
+
+\sailfname{exception\_delegatee} computes the delegated privilege
+level at which an exception should be handled given the current
+privilege level.  \sailfname{handle\_exception} processes traps and
+privilege transition instructions, and delegates trap handling to
+\sailfname{handle\_trap}.  \sailfname{handle\_interrupt},
+\sailfname{handle\_mem\_exception} and \sailfname{handle\_illegal} are
+convenient single-purpose helper wrapper functions.
+
+\begin{formalspec}
+  \sailfnexceptionDelegatee
+  \sailfnhandleTrap
+  \sailfnhandleException
+  \sailfnhandleMemException
+  \sailfnhandleInterrupt
+  \sailfnhandleIllegal
+\end{formalspec}
+
+\section{Virtual Memory}
+\label{s:priv-sail-vmem}
+
+This section covers the support of virtual memory in supervisor mode.
+
+\subsection{PTE handling}
+\label{ss:priv-sail-ptes}
+
+These types and functions describe the specification and handling of
+page-table entries, used in the specification of address translation
+described next.
+
+\begin{formalspec}
+  \sailtypepteAttribs
+  \sailtypePTEBits
+  \sailfnisPTEPtr
+  \sailfnisInvalidPTE
+  \sailfncheckPTEPermission
+  \sailfnupdatePTEBits
+\end{formalspec}
+
+\subsection{Sv39 Address Translation}
+\label{ss:priv-sail-addr-trans}
+
+The specification of address translation below occasionally refer to a
+simplistic TLB implemented in the formal model, but we do not include
+the definitions for this TLB since it is not actually part of the ISA
+specification.  The model uses \sailfname{PTW\_Result} to capture the
+result of the page-table walk implemented in \sailfname{walk39}, and
+converts any resulting error into an architectural exception using
+\sailfname{translationException}.  \sailfname{translateAddr}is the
+entry point for address translation, and is called by the instructions
+that access memory as described in the user-level specification.
+sailfname{translateAddr} uses \sailfname{translationMode} to dispatch
+to the appropriate translation mode.
+
+\sailfname{plat\_enable\_dirty\_update} is an external platform-level
+setting that controls whether PTEs are updated during page-table
+walks.
+
+\begin{formalspec}
+  \sailtypePTWError
+  \sailtypePTWResult
+  \sailfntranslationException
+  \sailfnwalkThreeNine
+  \sailfntranslateThreeNine
+  \sailfntranslationMode
+  \sailtypeTRResult
+  \sailfntranslateAddr
+\end{formalspec}
+

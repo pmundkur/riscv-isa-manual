@@ -1,8 +1,9 @@
-\section{Formal Instruction Specification}
+\section{Formal Specification in Sail}
+\label{sect:user-sail-model}
 
 This version of the document embeds a formal description of selected
 instruction semantics as specified in the Sail ISA description
-language\cite{sail-site}, specifically those of RV64IMAC.  The
+language\cite{sail-site}, specifically those of RV64IMAC.  This
 description is generated directly from the Sail sources of the RISC-V
 model, available at \url{https://github.com/rems-project/sail-riscv}.
 
@@ -11,14 +12,16 @@ the user, supervisor and machine privilege levels, and the Sv39
 address translation mode.  It passes the \texttt{riscv-tests} test
 suite, and is capable of booting Linux and seL4.
 
-The formal descriptions follow the instructions they describe, and
+The Sail formal descriptions follow the instructions they describe, and
 form the clauses of an \textit{execute} function that describe the
 semantics of executing that instruction.  The boolean value returned
 by these clauses indicate whether that instruction retired
 successfully.
 
 Some frequently used Sail language constructs are described in the
-table below.
+table below.  More information on Sail is provided in the Sail manual
+provided with the Sail distribution at
+\url{https://github.com/rems-project/sail}.
 
 \begin{table}[h]
   \begin{center}
@@ -43,15 +46,18 @@ the Sail model, especially concerning the portions that interact with
 the more privileged modes.  The portions omitted include:
 
 \begin{itemize}
-\item A description of the fetch-execute loop.  This sets \textbf{PC}
-  to the instruction $i$ to execute, and \textbf{nextPC} is set to the
+\item A description of the fetch-execute loop.  This sets \sailfname{PC}
+  to the instruction $i$ to execute, and \sailfname{nextPC} is set to the
   address of following instruction given the width of $i$.  The Sail
   instruction extracts included in this document update
-  \textbf{nextPC} if it needs to change from that value.
+  \sailfname{nextPC} if it needs to change from that value.
 \item An expansion of the functions that access physical memory
-  (\sailfname{mem\_read},\sailfname{mem\_write\_value}), perform address
-  translation (\sailfname{translateAddr}), and dispatch exceptions
-  (\sailfname{handle\_mem\_exception}, \sailfname{handle\_exception}).
+  (\sailfname{mem\_read}, \sailfname{mem\_write\_value}), perform
+  address translation (\sailfname{translateAddr}), and dispatch
+  exceptions (\sailfname{handle\_mem\_exception},
+  \sailfname{handle\_exception}).  Some of these functions are
+  described in the formal specification included in the Sail version
+  of the privileged architecture specification.
 \item Formal definitions of instructions that are RV32-only (e.g. in
   the RVC extension).
 \item Instructions that access user-mode visible CSRs are not included

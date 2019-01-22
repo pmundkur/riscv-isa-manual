@@ -1,0 +1,26 @@
+\section{Formal Specification in Sail}
+\label{sect:priv-sail-model}
+
+This version of the document includes selected sections of the formal
+description of privileged architecture as specified in the Sail ISA
+description language\cite{sail-site}.  This description is generated
+directly from the Sail sources of the RISC-V model, available at
+\url{https://github.com/rems-project/sail-riscv}.  More information on
+Sail is provided in the Sail manual provided with the Sail
+distribution at \url{https://github.com/rems-project/sail}.
+
+The Sail model of RISC-V currently implements the RV64IMAC dialect,
+the user, supervisor and machine privilege levels, and the Sv39
+address translation mode.  It passes the \texttt{riscv-tests} test
+suite, and is capable of booting Linux and seL4.  The model currently
+does not model event and performance counters, address translation
+other than Sv39, PMP/PMA, the N Standard Extension for User-Level
+Interrupts, and the hypervisor mode.
+
+Some selected portions of the Sail model of the privileged
+architecture are included in an appendix of this volume on
+page~\pageref{chap:priv-sail-model}, and include model definitions
+that were omitted from the unprivileged specification volume.  The
+selected portions are not intended to be complete, but instead to
+highlight formalizations of some of the more involved aspects of the
+ISA.  The complete Sail specification is available at the above url.
