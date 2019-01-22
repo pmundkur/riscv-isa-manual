@@ -24,10 +24,10 @@
    keywordstyle={\bf\ttfamily},
    morestring=[b]'',
    stringstyle={\ttfamily\color{red}},
-   % For now, we don't print Sail comments.  We should probably add
-   % custom comment markers for explicit LaTeX rendition.
-   morecomment=[il]{//},
-   morecomment=[is]{/*}{*/},
+   % Making comments invisible, (ie. using [i]) seems to trigger a bug in listings.
+   % Although it would be nicer to not print Sail comments, for now we just print them.
+   morecomment=[l]{//},
+   morecomment=[s]{/*}{*/},
    deletestring=[bd]{'},
    escapechar=\#,
    emphstyle={\it},
