@@ -122,10 +122,11 @@ with $imm[5] \neq 0$ are reserved.
 \begin{formalspec}
   \sailfclSHIFTIWOPexecute
 \end{formalspec}
-
+\begin{formalcomment}
 The formal definitions of SLLI, SRLI, and SRAI are the same as the
 RV32 case on page~\pageref{lbl:shiftimm32}.
 %%% SAIL-TODO: check this.
+\end{formalcomment}
 
 \vspace{-0.2in}
 \begin{center}
@@ -207,10 +208,11 @@ results.  The shift amount is given by {\em rs2[4:0]}.
 \begin{formalspec}
   \sailfclRTYPEWexecute
 \end{formalspec}
-
+\begin{formalcomment}
 The formal definitions of SLL, SRL, and SRA are the same as the
 RV32 case on page~\pageref{lbl:shift32}.
 %%% SAIL-TODO: check this.
+\end{formalcomment}
 
 \section{Load and Store Instructions}
 
@@ -272,9 +274,12 @@ values, as are LB and LBU for 8-bit values.  The SD, SW, SH, and SB
 instructions store 64-bit, 32-bit, 16-bit, and 8-bit values from the
 low bits of register {\em rs2} to memory respectively.
 
+\begin{formalcomment}
+  \rule{\linewidth}{1pt} % Since we don't have an immediately preceding formalspec.
 The formal definitions of LOAD and STORE are the same as the RV32 case
 on page~\pageref{lbl:ldst32}.
 %%% SAIL-TODO: check this.
+\end{formalcomment}
 
 \section{HINT Instructions}
 \label{sec:rv64i-hints}

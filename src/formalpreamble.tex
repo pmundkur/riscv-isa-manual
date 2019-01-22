@@ -49,7 +49,7 @@
   \newcommand{\saildoctype}[2]{#1 #2}
 
   % Define other macros that we use manually in the documentation.
-  \newcommand{\sailfname}[1]{\texttt{\it #1}}
+  \newcommand{\sailfname}[1]{\texttt{\textit{#1}}}
 } % else not SAIL.
 {
   \newcommand{\saildocfcl}[2]{}
@@ -65,6 +65,19 @@
   \rule{\linewidth}{1pt}\\
 }
 {
+  \rule{\linewidth}{1pt}
+  \end{quotation}
+  \vspace{-0.2in}
+}
+% This is intended to be used right after a formalspec, and so omits the leading \rule.
+\newenvironment{formalcomment}
+{ \vspace{-0.4in}
+  \begin{quotation}
+  \noindent
+  \small \\%\em
+%  \rule{\linewidth}{1pt}\\
+}
+{ \hfill \\
   \rule{\linewidth}{1pt}
   \end{quotation}
   \vspace{-0.2in}

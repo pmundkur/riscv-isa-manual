@@ -277,9 +277,13 @@ proposals as an optional standard extension ``T''.
   \sailfclSTORECONexecute
 \end{formalspec}
 
-The functions \sailfname{load\_reservation()} and
-\sailfname{cancel\_reservation()} are platform-dependent and
-are external to the formal specification.
+\begin{formalcomment}
+  Exception handling and \sailfname{handle\_mem\_exception} are
+  discussed in the Sail-annotated version of the privileged
+  specification.  The functions \sailfname{load\_reservation()} and
+  \sailfname{cancel\_reservation()} are platform-dependent and are
+  external to the formal specification.
+\end{formalcomment}
 
 \section{Atomic Memory Operations}
 \label{sec:amo}

@@ -813,6 +813,11 @@ elsewhere in the address space.
   \sailfclRISCVUnderscoreJALexecute
   \sailfclRISCVUnderscoreJALRexecute
 \end{formalspec}
+\begin{formalcomment}
+  Exception handling and \sailfname{handle\_mem\_exception} are
+  discussed in the Sail-annotated version of the privileged
+  specification.
+\end{formalcomment}
 
 %%% SAIL-TODO: add some commentary on the difference from the rmem definition.
 
@@ -922,6 +927,11 @@ any negative index will compare greater than any nonnegative bound.
 \begin{formalspec}
   \sailfclBTYPEexecute
 \end{formalspec}
+\begin{formalcomment}
+  Exception handling and \sailfname{handle\_mem\_exception} are
+  discussed in the Sail-annotated version of the privileged
+  specification.
+\end{formalcomment}
 
 Software should be optimized such that the sequential code path is the
 most common path, with less-frequently taken code paths placed out of
@@ -1153,10 +1163,21 @@ are aligned.
   \sailfclLOADexecute
   \sailfclSTOREexecute
 \end{formalspec}
+\begin{formalcomment}
+  The formal semantics of instructions that access memory necessarily
+  involve handling address translation, which complicates the
+  presentation above.  Address translation, exception handling and
+  \sailfname{handle\_mem\_exception} are discussed in the
+  Sail-annotated version of the privileged specification.  The
+  \sailfname{aq} and \sailfname{rl} arguments are acquire and release
+  ordering annotations over which the underlying memory accesses are
+  parameterized.
+\end{formalcomment}
 
 %%% SAIL-TODO: add some explanation of write_ea, since that belongs to this volume of the spec.
 %\begin{commentary}
 %\end{commentary}
+\vfill
 
 \pagebreak
 
@@ -1382,6 +1403,13 @@ supervisor-level operating system or debugger.
   \sailfclECALLexecute
   \sailfclEBREAKexecute
 \end{formalspec}
+\begin{formalcomment}
+  Privilege levels, transitions between privilege levels, exception
+  handling, \sailfname{handle\_exception} and
+  \sailfname{handle\_mem\_exception} are discussed in the
+  Sail-annotated version of the privileged specification.
+\end{formalcomment}
+
 
 \section{HINT Instructions}
 \label{sec:rv32i-hints}
