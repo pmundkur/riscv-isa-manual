@@ -1,8 +1,11 @@
 RISC-V Instruction Set Manual [![Build Status](https://travis-ci.org/riscv/riscv-isa-manual.svg?branch=master)](https://travis-ci.org/riscv/riscv-isa-manual)
 =============================
 
-This repository contains the LaTeX source for the draft RISC-V Instruction Set
-Manual.  At the time of this writing, none of these specifications have been
+This repository is a fork of the [RISC-V specification repository](https://github.com/riscv/riscv-isa-manual),
+and contains the LaTeX source for the draft RISC-V Instruction Set
+Manual extended with annotations automatically generated from the
+[Sail RISC-V model](https://github.com/rems-project/sail-riscv).
+At the time of this writing, none of these specifications have been
 formally adopted by the RISC-V Foundation.
 
 This work is licensed under a Creative Commons Attribution 4.0 International
