@@ -15,7 +15,7 @@ suite, and is capable of booting Linux and seL4.
 The Sail formal descriptions follow the instructions they describe, and
 form the clauses of an \textit{execute} function that describe the
 semantics of executing that instruction.  The boolean value returned
-by these clauses indicate whether that instruction retired
+by these clauses indicates whether that instruction retired
 successfully.
 
 Some frequently used Sail language constructs are described in the
@@ -31,15 +31,17 @@ provided with the Sail distribution at
       \sailfname{X}                 & Integer register file \\ \cline{1-2}
       \sailfname{X}(r)              & Integer register $r$  \\ \cline{1-2}
       \sailfname{zreg}              & Register $0$ \\  \cline{1-2}
+      \sailfname{creg2reg\_bits()}  & Mapper from 3-bit RVC register number to 5-bit RV register number \\ \cline{1-2} \\ \cline{1-2}
+      \sailfname{v}[h..l]           & Bit-field selection (from high h to low l) \\ \cline{1-2}
+      \sailfname{signed},\sailfname{unsigned} & Bitvector value with specified interpretation \\ \cline{1-2}
       \sailfname{EXTS}($\cdot$)     & Sign-extension to inferred width \\ \cline{1-2}
       \sailfname{EXTZ}($\cdot$)     & Zero-extension to inferred width \\ \cline{1-2}
-      \sailfname{v}[h..l]           & Bit-field selection (from high h to low l) \\ \cline{1-2}
-      \sailfname{creg2reg\_bits()}  & Mapper from 3-bit RVC register number to 5-bit RV register number \\ \cline{1-2}
+      \sailfname{quot_round_zero}   & Integer quotient rounded towards zero  \\ \cline{1-2}
+      \sailfname{rem_round_zero}    & Remainder corresponding to the above quotient   \\ \cline{1-2}
     \end{tabular}
   \end{center}
+  \caption{Selected Sail definitions used in this document.}
 \end{table}
-
-%%% SAIL-TODO: add signed, unsigned, quot_round_zero, rem_round_zero, xlen_max-signed, xlen_min-signed.
 
 The formal description included in this draft omits a fair amount of
 the Sail model, especially concerning the portions that interact with
