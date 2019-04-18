@@ -70,7 +70,7 @@ sections of this volume.
 \section{Interrupt Delegation and Dispatch}
 \label{s:priv-sail-intrs}
 
-\sailfname{curInterrupt} determines the interrupt that should be
+\sailfname{dispatchInterrupt} determines the interrupt that should be
 dispatched, if any, and the delegated dispatch privilege level, from
 the current values of the \sailfname{mip}, \sailfname{mie} and
 \sailfname{mstatus} registers and the current privilege level.  The
@@ -79,7 +79,7 @@ model the N standard extension.
 
 \begin{formalspec}
   \sailfnfindPendingInterrupt
-  \sailfncurInterrupt
+  \sailfndispatchInterrupt
 \end{formalspec}
 
 \section{Trap handling and privilege transition}

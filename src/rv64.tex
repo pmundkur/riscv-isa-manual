@@ -114,7 +114,7 @@ signed 32-bit results.  SLLIW, SRLIW, and SRAIW encodings
 with $imm[5] \neq 0$ are reserved.
 
 \begin{commentary}
-  Previously, SLLIW, SRLIW, and SRAIW with imm[5]=0 were defined to
+  Previously, SLLIW, SRLIW, and SRAIW with $imm[5] \neq 0$ were defined to
   cause illegal instruction exceptions, whereas now they are marked as
   reserved.  This is a backwards-compatible change.
 \end{commentary}
@@ -152,11 +152,11 @@ places zero in the lowest 12 bits.  The 32-bit result is
 sign-extended to 64 bits.
 
 AUIPC (add upper immediate to {\tt pc}) uses the same opcode as RV32I.
-AUIPC (add upper immediate to {\tt pc}) is used to build {\tt
+AUIPC is used to build {\tt
   pc}-relative addresses and uses the U-type format.  AUIPC appends 12
 low-order zero bits to the 20-bit U-immediate, sign-extends the result
-to 64 bits, then adds it to the {\tt pc} and places the result in
-register {\em rd}.
+to 64 bits, adds it to the address of the AUIPC instruction,
+then places the result in register {\em rd}.
 
 \begin{formalspec}
   \sailfclUTYPEexecute

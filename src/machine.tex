@@ -17,6 +17,7 @@ In addition to the machine-level CSRs described in this section,
 M-mode code can access all CSRs at lower privilege levels.
 
 \subsection{Machine ISA Register {\tt misa}}
+\label{sec:misa}
 
 The {\tt misa} CSR is a \warl\ read-write register
 reporting the ISA supported by the hart.  This register must be
@@ -312,7 +313,7 @@ MXLEN \\
 
 \begin{commentary}
 The format of this field is left to the provider of the architecture
-source code, but will be often be printed by standard tools as a
+source code, but will often be printed by standard tools as a
 hexadecimal string without any leading or trailing zeros, so the
 Implementation value can be left-justified (i.e., filled in from
 most-significant nibble down) with subfields aligned on nibble
@@ -509,7 +510,7 @@ ISAs respectively.
 \end{figure*}
 
 
-\subsection{Privilege and Global Interrupt-Enable Stack in {\tt mstatus} register}
+\subsubsection{Privilege and Global Interrupt-Enable Stack in {\tt mstatus} register}
 \label{privstack}
 
 Global interrupt-enable bits, MIE, SIE, and UIE, are provided for each
@@ -517,7 +518,7 @@ privilege mode.  These bits are primarily used to guarantee atomicity
 with respect to interrupt handlers in the current privilege mode.
 
 \begin{commentary}
-The global {\em x}IE bits are located in the low-order bits of {\tt mstatus},
+The global {\em x}\,IE bits are located in the low-order bits of {\tt mstatus},
 allowing them to be atomically set or cleared with a single CSR
 instruction.
 \end{commentary}
@@ -530,7 +531,7 @@ lower-privilege mode's global {\em w}\,IE bit.  Interrupts for
 higher-privilege modes, {\em y}$>${\em x}, are always globally enabled
 regardless of the setting of the higher-privilege mode's global {\em
   y}\,IE bit.  Higher-privilege-level code can use separate
-per-interrupt enable bits to disable selected high-privilege-mode
+per-interrupt enable bits to disable selected higher-privilege-mode
 interrupts before ceding control to a lower-privilege mode.
 
 \begin{commentary}
@@ -561,7 +562,7 @@ interrupts, so only one entry per stack is required.
 
 The MRET, SRET, or URET instructions are used to return from
 traps in M-mode, S-mode, or U-mode respectively.  When
-executing an {\em x}RET instruction, supposing {\em x}\,PP holds the
+executing an {\em x}\,RET instruction, supposing {\em x}\,PP holds the
 value {\em y}, {\em x}\,IE is set to {\em x}\,PIE; the privilege mode
 is changed to {\em y}; {\em x}\,PIE is set to 1; and {\em x}\,PP is
 set to U (or M if user-mode is not supported).
@@ -592,7 +593,7 @@ supported in systems running Unix-like operating systems to support
 user-level trap handling.
 \end{commentary}
 
-\subsection{Base ISA Control in {\tt mstatus} Register}
+\subsubsection{Base ISA Control in {\tt mstatus} Register}
 \label{xlen-control}
 
 For RV64 systems, the SXL and UXL fields are \warl\ fields
@@ -627,7 +628,7 @@ behavior.
 To reduce hardware complexity, the architecture imposes no checks that
 lower-privilege modes have XLEN settings less than or equal to the
 next-higher privilege mode.  In practice, such settings would almost
-always be an error, but machine operation is well-defined even in this
+always be a software bug, but machine operation is well-defined even in this
 case.
 \end{commentary}
 
@@ -635,7 +636,7 @@ If MXLEN is changed from 32 to a wider width, each of {\tt mstatus} fields SXL a
 UXL, if not hardwired to a forced value, gets the value corresponding to the
 widest supported width not wider than the new MXLEN.
 
-\subsection{Memory Privilege in {\tt mstatus} Register}
+\subsubsection{Memory Privilege in {\tt mstatus} Register}
 
 The MPRV (Modify PRiVilege) bit modifies the privilege level at which loads
 and stores execute in all privilege modes.  When MPRV=0, loads and stores
@@ -677,7 +678,13 @@ Note that, while SUM is ordinarily ignored when not executing in S-mode, it
 {\em is} in effect when MPRV=1 and MPP=S.  SUM is hardwired to 0 if S-mode is
 not supported.
 
-\subsection{Virtualization Support in {\tt mstatus} Register}
+\begin{commentary}
+The MXR and SUM mechanisms only affect the interpretation of permissions
+encoded in page-table entries.  In particular, they have no impact on whether
+access exceptions are raised due to PMAs or PMP.
+\end{commentary}
+
+\subsubsection{Virtualization Support in {\tt mstatus} Register}
 \label{virt-control}
 
 The TVM (Trap Virtual Memory) bit supports intercepting
@@ -730,7 +737,7 @@ Trapping SRET is necessary to emulate the hypervisor extension
 (see Chapter~\ref{hypervisor}) on implementations that do not provide it.
 \end{commentary}
 
-\subsection{Extension Context Status in {\tt mstatus} Register}
+\subsubsection{Extension Context Status in {\tt mstatus} Register}
 
 Supporting substantial extensions is one of the primary goals of
 RISC-V, and hence we define a standard interface to allow unchanged
@@ -742,7 +749,7 @@ arbitrary user-mode state extensions.
   additional state beyond the floating-point CSR and data registers.
 \end{commentary}
 
-The FS[1:0] read/write field and the XS[1:0] read-only field are used
+The FS[1:0] \warl\ field and the XS[1:0] read-only field are used
 to reduce the cost of context save and restore by setting and tracking
 the current state of the floating-point unit and any other user-mode
 extensions respectively.  The FS field encodes the status of the
@@ -802,7 +809,7 @@ require saving extended user context to memory.  If both XS and FS are
 hardwired to zero, then SD is also always zero.
 
 When an extension's status is set to Off, any instruction that
-attempts to read or write the corresponding state will cause an
+attempts to read or write the corresponding state will cause an illegal instruction
 exception.  When the status is Initial, the corresponding state should
 have an initial constant value.  When the status is Clean, the
 corresponding state is potentially different from the initial value,
@@ -1044,7 +1051,7 @@ address in the BASE field.  When MODE=Vectored, all synchronous exceptions
 into machine mode cause the {\tt pc} to be set to the address in the BASE
 field, whereas interrupts cause the {\tt pc} to be set to the address in
 the BASE field plus four times the interrupt cause number.  For example,
-a machine-mode timer interrupt (see Table~\ref{mcauses}) causes the {\tt pc}
+a machine-mode timer interrupt (see Table~\ref{mcauses} on page~\pageref{mcauses}) causes the {\tt pc}
 to be set to BASE+{\tt 0x1c}.
 
 \begin{commentary}
@@ -1086,10 +1093,16 @@ S-mode or U-mode to the S-mode trap handler. If U-mode traps are
 supported, S-mode may in turn set corresponding bits in the {\tt
   sedeleg} and {\tt sideleg} registers to delegate traps that occur in
 U-mode to the U-mode trap handler.
+In systems with S-mode, the {\tt medeleg} and {\tt mideleg} registers must
+exist, whereas the {\tt sedeleg} and {\tt sideleg} registers should only exist
+if the N extension for user-mode interrupts is also implemented.
 
 In systems with two privilege modes (M/U) and support for U-mode
 traps, setting a bit in {\tt medeleg} or {\tt mideleg} will
 delegate the corresponding trap in U-mode to the U-mode trap handler.
+In systems with only M-mode and U-mode, the {\tt medeleg} and {\tt mideleg}
+registers should only be implemented if the N extension for user-mode
+interrupts is implemented.
 
 In systems with only M-mode, or with both M-mode and U-mode but
 without U-mode trap support, the {\tt medeleg} and {\tt mideleg}
@@ -1155,7 +1168,7 @@ MXLEN \\
 \end{figure}
 
 {\tt medeleg} has a bit position allocated for every synchronous exception
-shown in Table~\ref{mcauses}, with the index of the bit position equal to the
+shown in Table~\ref{mcauses} on page~\pageref{mcauses}, with the index of the bit position equal to the
 value returned in the {\tt mcause} register (i.e., setting bit 8 allows
 user-mode environment calls to be delegated to a lower-privilege trap
 handler).
@@ -1377,7 +1390,7 @@ trap handler.
 
 For all the various interrupt types (software, timer, and external),
 if a privilege level is not supported, or if U-mode is supported but
-the N extension is not supported, than the associated pending and
+the N extension is not supported, then the associated pending and
 interrupt-enable bits are hardwired to zero in the {\tt mip} and {\tt
   mie} registers respectively.  Hence, these are all effectively
 \warl\ fields.
@@ -1437,7 +1450,7 @@ Synchronous exceptions are of lower priority than all interrupts.
 \subsection{Machine Timer Registers ({\tt mtime} and {\tt mtimecmp})}
 
 Platforms provide a real-time counter, exposed as a memory-mapped
-machine-mode register, {\tt mtime}.  {\tt mtime} must run at constant
+machine-mode read-write register, {\tt mtime}.  {\tt mtime} must run at constant
 frequency, and the platform must provide a mechanism for determining
 the timebase of {\tt mtime}.
 
@@ -1580,7 +1593,13 @@ both the counter and its corresponding event selector to 0.
 \caption{Hardware performance monitor counters.}
 \end{figure}
 
-All of these counters have 64-bit precision on RV32 and RV64.
+The {\tt mhpmcounter}s are \warl\ registers that support up to 64 bits of
+precision on RV32 and RV64.
+
+\begin{commentary}
+A future revision of this specification will define a mechanism to generate an
+interrupt when a hardware performance monitor counter overflows.
+\end{commentary}
 
 On RV32 only, reads of the {\tt mcycle}, {\tt minstret}, and {\tt
 mhpmcounter{\em n}} CSRs return the low 32 bits, while reads of the {\tt
@@ -1686,7 +1705,7 @@ Registers {\tt mcounteren} and {\tt scounteren} are \warl\ registers
 that must be implemented if U-mode and S-mode are implemented,
 Any of the bits may contain
 a hardwired value of zero, indicating reads to the corresponding counter will
-cause an exception when executing in a less-privileged mode.
+cause an illegal instruction exception when executing in a less-privileged mode.
 \begin{commentary}
 The counter-enable bits support two common use cases with minimal hardware.
 For systems that do not need high-performance timers and counters,
@@ -1895,17 +1914,18 @@ codes.
   \hline	 
   1         & 0               & User software interrupt \\
   1         & 1               & Supervisor software interrupt \\
-  1         & 2               & {\em Reserved} \\
+  1         & 2               & {\em Reserved for future standard use} \\
   1         & 3               & Machine software interrupt \\ \hline
   1         & 4               & User timer interrupt \\
   1         & 5               & Supervisor timer interrupt \\
-  1         & 6               & {\em Reserved} \\
+  1         & 6               & {\em Reserved for future standard use} \\
   1         & 7               & Machine timer interrupt \\ \hline
   1         & 8               & User external interrupt \\
   1         & 9               & Supervisor external interrupt \\
-  1         & 10              & {\em Reserved} \\
+  1         & 10              & {\em Reserved for future standard use} \\
   1         & 11              & Machine external interrupt \\ \hline
-  1         & $\ge$12         & {\em Reserved} \\ \hline
+  1         & 12--15          & {\em Reserved for future standard use} \\
+  1         & $\ge$16         & {\em Reserved for platform use} \\ \hline
   0         & 0               & Instruction address misaligned \\
   0         & 1               & Instruction access fault \\
   0         & 2               & Illegal instruction \\   
@@ -1920,9 +1940,13 @@ codes.
   0         & 11              & Environment call from M-mode \\
   0         & 12              & Instruction page fault \\
   0         & 13              & Load page fault \\
-  0         & 14              & {\em Reserved} \\
+  0         & 14              & {\em Reserved for future standard use} \\
   0         & 15              & Store/AMO page fault \\
-  0         & $\ge$16         & {\em Reserved} \\
+  0         & 16--23          & {\em Reserved for future standard use} \\
+  0         & 24--31          & {\em Reserved for custom use} \\
+  0         & 32--47          & {\em Reserved for future standard use} \\
+  0         & 48--63          & {\em Reserved for custom use} \\
+  0         & $\ge$64         & {\em Reserved for future standard use} \\
   \hline
 
 \end{tabular}
@@ -1945,6 +1969,53 @@ details of which higher-privilege instructions are supported by an
 implementation.  The privilege level servicing the trap can implement
 a policy on whether these need to be distinguished, and if so, whether
 a given opcode should be treated as illegal or privileged.
+\end{commentary}
+
+If an instruction raises multiple synchronous exceptions, the
+decreasing priority order of Table~\ref{exception-priority}
+indicates which exception is taken and reported in {\tt mcause}.
+The priority of any custom synchronous exceptions is implementation-defined.
+
+\begin{table*}[h!]
+\begin{center}
+\begin{tabular}{|l|r|l|}
+
+  \hline
+  Priority      & Exception Code & Description \\
+  \hline
+  {\em Highest} &          3 & Instruction address breakpoint \\ \hline
+                &         12 & Instruction page fault \\ \hline
+                &          1 & Instruction access fault \\ \hline
+                &          2 & Illegal instruction \\
+                &          0 & Instruction address misaligned \\
+                &   8, 9, 11 & Environment call \\
+                &          3 & Environment break \\
+                &          3 & Load/Store/AMO address breakpoint \\ \hline
+                &          6 & Store/AMO address misaligned \\
+                &          4 & Load address misaligned \\ \hline
+                &         15 & Store/AMO page fault \\
+                &         13 & Load page fault \\ \hline
+                &          7 & Store/AMO access fault \\
+  {\em Lowest}  &          5 & Load access fault \\
+  \hline
+
+\end{tabular}
+\end{center}
+\caption{Synchronous exception priority in decreasing priority order.}
+\label{exception-priority}
+\end{table*}
+
+\begin{commentary}
+Instruction address breakpoints have the same cause value as, but
+different priority than, data address breakpoints (a.k.a. watchpoints)
+and environment break exceptions (which are raised by the EBREAK instruction).
+\end{commentary}
+
+\begin{commentary}
+Instruction address misaligned exceptions are raised by control-flow
+instructions with misaligned targets, rather than by the act of fetching an
+instruction.  Therefore, these exceptions have lower priority than other
+instruction address exceptions.
 \end{commentary}
 
 \subsection{Machine Trap Value ({\tt mtval}) Register}
@@ -2150,7 +2221,7 @@ Previously, there was only a single ERET instruction (which was also
 earlier known as SRET).  To support the addition of user-level
 interrupts, we needed to add a separate URET instruction to continue
 to allow classic virtualization of OS code using the ERET instruction.
-It then became more orthogonal to support a different {\em x}RET
+It then became more orthogonal to support a different {\em x}\,RET
 instruction per privilege level.
 \end{commentary}
 
@@ -2267,7 +2338,10 @@ arrival.
 \label{sec:reset}
 
 Upon reset, a hart's privilege mode is set to M.  The {\tt mstatus} fields MIE
-and MPRV are reset to 0.  The {\tt pc} is set to an implementation-defined
+and MPRV are reset to 0.
+The {\tt misa} register is reset to enable the maximal set of supported
+extensions and widest MXLEN, as described in Section~\ref{sec:misa}.
+The {\tt pc} is set to an implementation-defined
 reset vector.  The {\tt mcause} register is set to a value indicating the
 cause of the reset.  Writable PMP registers' A and L fields are set to 0.  All
 other hart state is unspecified.

@@ -44,50 +44,57 @@ less-privileged software.
 \begin{tabular}{|c|c|c|c|l|}
 \hline
 \multicolumn{3}{|c|}{CSR Address} & Hex & \multicolumn{1}{c|}{Use and Accessibility}\\ \cline{1-3}
-[11:10] & [9:8] & [7:6]                  &  & \\
+[11:10] & [9:8] & [7:4]                  &  & \\
 \hline
 \multicolumn{5}{|c|}{User CSRs}  \\
 \hline
-\tt   00   &\tt   00  &\tt   XX     & \tt 0x000-0x0FF & Standard read/write \\ 
-\tt   01   &\tt   00  &\tt   XX     & \tt 0x400-0x4FF & Standard read/write \\ 
-\tt   10   &\tt   00  &\tt   XX     & \tt 0x800-0x8FF & Custom read/write \\ 
-\tt   11   &\tt   00  &\tt   00-10  & \tt 0xC00-0xCBF & Standard read-only \\
-\tt   11   &\tt   00  &\tt   11     & \tt 0xCC0-0xCFF & Custom read-only \\
+\tt   00   &\tt   00  &\tt   XXXX   & \tt 0x000-0x0FF & Standard read/write \\ 
+\tt   01   &\tt   00  &\tt   XXXX   & \tt 0x400-0x4FF & Standard read/write \\ 
+\tt   10   &\tt   00  &\tt   XXXX   & \tt 0x800-0x8FF & Custom read/write \\ 
+\tt   11   &\tt   00  &\tt   0XXX   & \tt 0xC00-0xC7F & Standard read-only \\
+\tt   11   &\tt   00  &\tt   10XX   & \tt 0xC80-0xCBF & Standard read-only \\
+\tt   11   &\tt   00  &\tt   11XX   & \tt 0xCC0-0xCFF & Custom read-only \\
 \hline
 \multicolumn{5}{|c|}{Supervisor CSRs}  \\
 \hline                                         
-\tt   00   &\tt   01  &\tt   XX     & \tt 0x100-0x1FF & Standard read/write \\ 
-\tt   01   &\tt   01  &\tt   00-10  & \tt 0x500-0x5BF & Standard read/write \\ 
-\tt   01   &\tt   01  &\tt   11     & \tt 0x5C0-0x5FF & Custom read/write \\ 
-\tt   10   &\tt   01  &\tt   00-10  & \tt 0x900-0x9BF & Standard read/write \\ 
-\tt   10   &\tt   01  &\tt   11     & \tt 0x9C0-0x9FF & Custom read/write \\ 
-\tt   11   &\tt   01  &\tt   00-10  & \tt 0xD00-0xDBF & Standard read-only \\
-\tt   11   &\tt   01  &\tt   11     & \tt 0xDC0-0xDFF & Custom read-only \\
+\tt   00   &\tt   01  &\tt   XXXX   & \tt 0x100-0x1FF & Standard read/write \\ 
+\tt   01   &\tt   01  &\tt   0XXX   & \tt 0x500-0x57F & Standard read/write \\ 
+\tt   01   &\tt   01  &\tt   10XX   & \tt 0x580-0x5BF & Standard read/write \\ 
+\tt   01   &\tt   01  &\tt   11XX   & \tt 0x5C0-0x5FF & Custom read/write \\ 
+\tt   10   &\tt   01  &\tt   0XXX   & \tt 0x900-0x97F & Standard read/write \\ 
+\tt   10   &\tt   01  &\tt   10XX   & \tt 0x980-0x9BF & Standard read/write \\ 
+\tt   10   &\tt   01  &\tt   11XX   & \tt 0x9C0-0x9FF & Custom read/write \\ 
+\tt   11   &\tt   01  &\tt   0XXX   & \tt 0xD00-0xD7F & Standard read-only \\
+\tt   11   &\tt   01  &\tt   10XX   & \tt 0xD80-0xDBF & Standard read-only \\
+\tt   11   &\tt   01  &\tt   11XX   & \tt 0xDC0-0xDFF & Custom read-only \\
 \hline
-\multicolumn{5}{|c|}{Reserved CSRs} \\
+\multicolumn{5}{|c|}{Hypervisor CSRs} \\
 \hline                                         
-\tt   XX   &\tt   10  &\tt   XX     & Reserved & \\
-%% \multicolumn{5}{|c|}{Hypervisor CSRs} \\
-%% \hline                                         
-%% \tt   00   &\tt   10  &\tt   XX     & \tt 0x200-0x2FF & Standard read/write \\ 
-%% \tt   01   &\tt   10  &\tt   00-10  & \tt 0x600-0x6BF & Standard read/write \\ 
-%% \tt   01   &\tt   10  &\tt   11     & \tt 0x6C0-0x6FF & Custom read/write \\ 
-%% \tt   10   &\tt   10  &\tt   00-10  & \tt 0xA00-0xABF & Standard read/write \\ 
-%% \tt   10   &\tt   10  &\tt   11     & \tt 0xAC0-0xAFF & Custom read/write \\ 
-%% \tt   11   &\tt   10  &\tt   00-10  & \tt 0xE00-0xEBF & Standard read-only \\
-%% \tt   11   &\tt   10  &\tt   11     & \tt 0xEC0-0xEFF & Custom read-only \\
+\tt   00   &\tt   10  &\tt   XXXX   & \tt 0x200-0x2FF & Standard read/write \\ 
+\tt   01   &\tt   10  &\tt   0XXX   & \tt 0x600-0x67F & Standard read/write \\ 
+\tt   01   &\tt   10  &\tt   10XX   & \tt 0x680-0x6BF & Standard read/write \\ 
+\tt   01   &\tt   10  &\tt   11XX   & \tt 0x6C0-0x6FF & Custom read/write \\ 
+\tt   10   &\tt   10  &\tt   0XXX   & \tt 0xA00-0xA7F & Standard read/write \\ 
+\tt   10   &\tt   10  &\tt   10XX   & \tt 0xA80-0xABF & Standard read/write \\ 
+\tt   10   &\tt   10  &\tt   11XX   & \tt 0xAC0-0xAFF & Custom read/write \\ 
+\tt   11   &\tt   10  &\tt   0XXX   & \tt 0xE00-0xE7F & Standard read-only \\
+\tt   11   &\tt   10  &\tt   10XX   & \tt 0xE80-0xEBF & Standard read-only \\
+\tt   11   &\tt   10  &\tt   11XX   & \tt 0xEC0-0xEFF & Custom read-only \\
 \hline
 \multicolumn{5}{|c|}{Machine CSRs}  \\
 \hline                                         
-\tt   00   &\tt   11  &\tt   XX     & \tt 0x300-0x3FF & Standard read/write \\ 
-\tt   01   &\tt   11  &\tt   00-10  & \tt 0x700-0x79F & Standard read/write \\ 
-\tt   01   &\tt   11  &\tt   10     & \tt 0x7A0-0x7AF & Standard read/write debug CSRs  \\ 
-\tt   01   &\tt   11  &\tt   10     & \tt 0x7B0-0x7BF & Debug-mode-only CSRs \\
-\tt   01   &\tt   11  &\tt   11     & \tt 0x7C0-0x7FF & Custom read/write \\ 
-\tt   10   &\tt   11  &\tt   00-10  & \tt 0xB00-0xBBF & Standard read/write \\ 
-\tt   10   &\tt   11  &\tt   11     & \tt 0xBC0-0xBFF & Custom read/write \\ 
-\tt   11   &\tt   11  &\tt   00-10  & \tt 0xF00-0xFBF & Standard read-only \\
-\tt   11   &\tt   11  &\tt   11     & \tt 0xFC0-0xFFF & Custom read-only \\
+\tt   00   &\tt   11  &\tt   XXXX   & \tt 0x300-0x3FF & Standard read/write \\ 
+\tt   01   &\tt   11  &\tt   0XXX   & \tt 0x700-0x77F & Standard read/write \\ 
+\tt   01   &\tt   11  &\tt   100X   & \tt 0x780-0x79F & Standard read/write \\ 
+\tt   01   &\tt   11  &\tt   1010   & \tt 0x7A0-0x7AF & Standard read/write debug CSRs  \\ 
+\tt   01   &\tt   11  &\tt   1011   & \tt 0x7B0-0x7BF & Debug-mode-only CSRs \\
+\tt   01   &\tt   11  &\tt   11XX   & \tt 0x7C0-0x7FF & Custom read/write \\ 
+\tt   10   &\tt   11  &\tt   0XXX   & \tt 0xB00-0xB7F & Standard read/write \\ 
+\tt   10   &\tt   11  &\tt   10XX   & \tt 0xB80-0xBBF & Standard read/write \\ 
+\tt   10   &\tt   11  &\tt   11XX   & \tt 0xBC0-0xBFF & Custom read/write \\ 
+\tt   11   &\tt   11  &\tt   0XXX   & \tt 0xF00-0xF7F & Standard read-only \\
+\tt   11   &\tt   11  &\tt   10XX   & \tt 0xF80-0xFBF & Standard read-only \\
+\tt   11   &\tt   11  &\tt   11XX   & \tt 0xFC0-0xFFF & Custom read-only \\
 \hline
 \end{tabular}
 \end{center}
@@ -215,38 +222,40 @@ Number    & Privilege & Name & Description \\
 \label{scsrnames}
 \end{table}
 
-%% \begin{table}[htb!]
-%% \begin{center}
-%% \begin{tabular}{|l|l|l|l|}
-%% \hline
-%% Number    & Privilege & Name & Description \\
-%% \hline  
-%% \multicolumn{4}{|c|}{Hypervisor Trap Setup} \\
-%% \hline
-%% \tt 0x200 & HRW  &\tt hstatus    & Hypervisor status register. \\
-%% \tt 0x202 & HRW  &\tt hedeleg    & Hypervisor exception delegation register. \\
-%% \tt 0x203 & HRW  &\tt hideleg    & Hypervisor interrupt delegation register. \\
-%% \tt 0x204 & HRW  &\tt hie        & Hypervisor interrupt-enable register. \\
-%% \tt 0x205 & HRW  &\tt htvec      & Hypervisor trap handler base address. \\
-%% \tt 0x206 & HRW  &\tt hcounteren & Hypervisor counter enable. \\
-%% \hline
-%% \multicolumn{4}{|c|}{Hypervisor Trap Handling} \\
-%% \hline
-%% \tt 0x240 & HRW  &\tt hscratch   & Scratch register for hypervisor trap handlers. \\
-%% \tt 0x241 & HRW  &\tt hepc       & Hypervisor exception program counter. \\
-%% \tt 0x242 & HRW  &\tt hcause     & Hypervisor trap cause. \\
-%% \tt 0x243 & HRW  &\tt htval   & Hypervisor bad address or instruction. \\
-%% \tt 0x244 & HRW  &\tt hip        & Hypervisor interrupt pending. \\
-%% \hline
-%% \multicolumn{4}{|c|}{Hypervisor Protection and Translation} \\
-%% \hline
-%% \tt 0x28X & TBD & TBD & TBD. \\
-%% \hline
-%% \end{tabular}
-%% \end{center}
-%% \caption{Currently allocated RISC-V hypervisor-level CSR addresses.}
-%% \label{hcsrnames}
-%% \end{table}
+\begin{table}[htb!]
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Number    & Privilege & Name & Description \\
+\hline  
+\multicolumn{4}{|c|}{Hypervisor Trap Setup} \\
+\hline
+\hline
+\tt 0xA00 & HRW  &\tt hstatus    & Hypervisor status register. \\
+\tt 0xA02 & HRW  &\tt hedeleg    & Hypervisor exception delegation register. \\
+\tt 0xA03 & HRW  &\tt hideleg    & Hypervisor interrupt delegation register. \\
+\hline
+\multicolumn{4}{|c|}{Hypervisor Protection and Translation} \\
+\hline
+\tt 0xA80 & HRW  &\tt hgatp      & Hypervisor guest address translation and protection. \\
+\hline
+\multicolumn{4}{|c|}{Hypervisor Background Supervisor Registers} \\
+\hline
+\tt 0x200 & HRW  &\tt bsstatus   & Background supervisor status register. \\
+\tt 0x204 & HRW  &\tt bsie       & Background supervisor interrupt-enable register. \\
+\tt 0x205 & HRW  &\tt bstvec     & Background supervisor trap handler base address. \\
+\tt 0x240 & HRW  &\tt bsscratch  & Background supervisor scratch register. \\
+\tt 0x241 & HRW  &\tt bsepc      & Background supervisor exception program counter. \\
+\tt 0x242 & HRW  &\tt bscause    & Background supervisor trap cause. \\
+\tt 0x243 & HRW  &\tt bstval     & Background supervisor bad address or instruction. \\
+\tt 0x244 & HRW  &\tt bsip       & Background supervisor interrupt pending. \\
+\tt 0x280 & HRW  &\tt bsatp      & Background supervisor address translation and protection. \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Currently allocated RISC-V hypervisor-level CSR addresses.}
+\label{hcsrnames}
+\end{table}
 
 
 \begin{table}[htb!]
@@ -343,7 +352,8 @@ Number    & Privilege & Name & Description \\
 \hline
 \tt 0x7B0 & DRW &\tt dcsr & Debug control and status register. \\
 \tt 0x7B1 & DRW &\tt dpc & Debug PC. \\
-\tt 0x7B2 & DRW &\tt dscratch & Debug scratch register. \\
+\tt 0x7B2 & DRW &\tt dscratch0 & Debug scratch register 0. \\
+\tt 0x7B3 & DRW &\tt dscratch1 & Debug scratch register 1. \\
 \hline
 \end{tabular}
 \end{center}

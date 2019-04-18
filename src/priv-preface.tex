@@ -16,7 +16,7 @@ modules:
     \hline
     \bf Machine ISA    & \bf 1.11 & \bf Ratification \\
     \bf Supervisor ISA & \bf 1.11 & \bf Ratification \\
-    \em Hypervisor ISA & \em 0.2  & \em Draft \\
+    \em Hypervisor ISA & \em 0.3  & \em Draft \\
     \hline
   \end{tabular}
 \end{table}
@@ -30,10 +30,16 @@ The changes in this version of the document include:
 \item Improvements to the description and commentary.
 \item Added a draft proposal for a hypervisor extension.
 \item Specified which interrupt sources are reserved for standard use.
+\item Allocated some synchronous exception causes for custom use.
+\item Specified the priority ordering of synchronous exceptions.
 \item Added specification that xRET instructions may, but are not
   required to, clear LR reservations if A extension present.
 \item The virtual-memory system no longer permits supervisor mode to execute
   instructions from user pages, regardless of the SUM setting.
+\item Software is strongly recommended to allocate ASIDs globally, so that
+  a future extension can globalize ASIDs for improved performance and hardware
+  flexibility.
+\item SFENCE.VMA semantics have been clarified.
 \item Made the {\tt mstatus}.MPP field \warl, rather than \wlrl.
 \item Made the unused {\em x}{\tt ip} fields \wpri, rather than \wiri.
 \item Made the unused {\tt misa} fields \wlrl, rather than \wiri.
@@ -46,6 +52,8 @@ The changes in this version of the document include:
   systems with variable IALIGN.
 \item Specified the behavior of writing self-contradictory values to the
   {\tt misa} register.
+\item Defined the {\tt mcountinhibit} CSR, which stops performance
+  counters from incrementing to reduce energy consumption.
 \item Specified semantics for PMP regions coarser than four bytes.
 \item Specified contents of CSRs across XLEN modification.
 \item Moved PLIC chapter into its own document.

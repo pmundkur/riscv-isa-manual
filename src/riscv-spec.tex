@@ -4,10 +4,14 @@
 
 \documentclass[twoside,11pt]{book}
 
+% Fix copy/pasting of ligatures in Acrobat
+\input{glyphtounicode.tex}
+\pdfgentounicode=1 %
+
 \input{preamble}
 
-\newcommand{\specrev}{\mbox{20181221-Public-Review-{\em draft}}}
-\newcommand{\specmonthyear}{\mbox{December 2018}}
+\newcommand{\specrev}{\mbox{20190305-Base-Ratification}}
+\newcommand{\specmonthyear}{\mbox{March 2019}}
 
 \begin{document}
 
@@ -33,8 +37,8 @@ Arvind, Krste Asanovi\'{c}, Rimas Avi\v{z}ienis, Jacob Bachmeyer, Christopher
 F. Batten, Allen J. Baum, Alex Bradbury, Scott Beamer, Preston Briggs,
 Christopher Celio, Chuanhua Chang, David Chisnall, Paul Clayton, Palmer
 Dabbelt, Roger Espasa, Shaked Flur, Stefan Freudenberger, Jan Gray, Michael
-Hamburg, John Hauser, David Horner, Bruce Hoult, Alexandre Joannou,
-Olof Johansson, Ben Keller, Yunsup Lee,
+Hamburg, John Hauser, David Horner, Bruce Hoult, Bill Huffman, Alexandre Joannou,
+Olof Johansson, Ben Keller, David Kruckemyer, Yunsup Lee,
 Paul Loewenstein, Daniel Lustig, Yatin Manerkar, Luc Maranget, Margaret
 Martonosi, Joseph Myers, Vijayanand Nagarajan, Rishiyur Nikhil, Jonas
 Oberhauser, Stefan O'Rear, Albert Ou, John Ousterhout, David Patterson,

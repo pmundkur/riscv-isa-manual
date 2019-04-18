@@ -626,13 +626,14 @@ so is only guaranteed to hold supported exception codes.
   \hline	 
   1         & 0               & User software interrupt \\
   1         & 1               & Supervisor software interrupt \\
-  1         & 2--3            & {\em Reserved} \\
+  1         & 2--3            & {\em Reserved for future standard use} \\ \hline
   1         & 4               & User timer interrupt \\
   1         & 5               & Supervisor timer interrupt \\
-  1         & 6--7            & {\em Reserved} \\
+  1         & 6--7            & {\em Reserved for future standard use} \\ \hline
   1         & 8               & User external interrupt \\
   1         & 9               & Supervisor external interrupt \\
-  1         & $\ge$10          & {\em Reserved} \\ \hline
+  1         & 10--15          & {\em Reserved for future standard use} \\
+  1         & $\ge$16         & {\em Reserved for platform use} \\ \hline
   0         & 0               & Instruction address misaligned \\
   0         & 1               & Instruction access fault \\
   0         & 2               & Illegal instruction \\   
@@ -643,12 +644,16 @@ so is only guaranteed to hold supported exception codes.
   0         & 7               & Store/AMO access fault \\
   0         & 8               & Environment call from U-mode \\
   0         & 9               & Environment call from S-mode \\
-  0         & 10--11          & {\em Reserved} \\
+  0         & 10--11          & {\em Reserved for future standard use} \\
   0         & 12              & Instruction page fault \\
   0         & 13              & Load page fault \\
-  0         & 14              & {\em Reserved} \\
+  0         & 14              & {\em Reserved for future standard use} \\
   0         & 15              & Store/AMO page fault \\
-  0         & $\ge$16         & {\em Reserved} \\
+  0         & 16--23          & {\em Reserved for future standard use} \\
+  0         & 24--31          & {\em Reserved for custom use} \\
+  0         & 32--47          & {\em Reserved for future standard use} \\
+  0         & 48--63          & {\em Reserved for custom use} \\
+  0         & $\ge$64         & {\em Reserved for future standard use} \\
   \hline
 \end{tabular}
 \end{center}
@@ -920,10 +925,11 @@ The supervisor memory-management fence instruction SFENCE.VMA is used to
 synchronize updates to in-memory memory-management data structures with
 current execution.  Instruction execution causes implicit reads and writes to
 these data structures; however, these implicit references are ordinarily not
-ordered with respect to loads and stores in the instruction stream.  Executing
-an SFENCE.VMA instruction guarantees that any stores in the instruction stream
-prior to the SFENCE.VMA are ordered before all implicit references subsequent
-to the SFENCE.VMA. Further details on the behavior of this instruction are
+ordered with respect to explicit loads and stores.  Executing
+an SFENCE.VMA instruction guarantees that any previous stores already visible
+to the current RISC-V hart are ordered before all subsequent implicit references
+from that hart to the memory-management data structures.
+Further details on the behavior of this instruction are
 described in Section~\ref{virt-control} and Section~\ref{pmp-vmem}.
 
 \begin{commentary}
@@ -936,9 +942,13 @@ is also used by higher privilege levels to synchronize page table
 writes and the address translation hardware.
 \end{commentary}
 
+SFENCE.VMA orders only the local hart's implicit references to the
+memory-management data structures.
+
 \begin{commentary}
-Note the instruction has no effect on the translations of other harts,
-which must be notified separately.  One approach is to use 1)
+Consequently, other harts must be notified separately when the
+memory-management data structures have been modified.
+One approach is to use 1)
 a local data fence to ensure local writes are visible globally, then
 2) an interprocessor interrupt to the other thread, then 3) a local
 SFENCE.VMA in the interrupt handler of the remote thread, and finally
@@ -985,6 +995,82 @@ rs2}.
 \begin{commentary}
 Simpler implementations can ignore the virtual address in {\em rs1} and
 the ASID value in {\em rs2} and always perform a global fence.
+\end{commentary}
+
+Implementations may perform implicit reads of the translation data structures
+pointed to by the current {\tt satp} register arbitrarily early and
+speculatively.  The results of these reads may be held in an incoherent cache
+but not shared with other harts.  Cache entries may only be established for
+the ASID currently loaded into the {\tt satp} register, or for global entries.
+The cache may only satisfy implicit reads for entries that have been
+established for the ASID currently loaded into {\tt satp}, or for global
+entries.  Changes in the {\tt satp} register do not necessarily flush any such
+translation caches.  To ensure the implicit reads observe writes to the same
+memory locations, an SFENCE.VMA instruction must be executed after the writes
+to flush the relevant cached translations.
+
+Implementations must only perform implicit reads of the translation
+data structures pointed to by the current contents of the satp
+register, and must only raise exceptions for implicit accesses that are
+generated as a result of instruction execution, not those that are
+performed speculatively.
+
+\begin{commentary}
+The following common situations typically require executing an
+SFENCE.VMA instruction:
+
+\vspace{-0.1in}
+\begin{itemize}
+
+\item When software recycles an ASID (i.e., reassociates it with a different
+page table), it should {\em first} change {\tt satp} to point to the new page
+table using the recycled ASID, {\em then} execute SFENCE.VMA with {\em
+rs1}={\tt x0} and {\em rs2} set to the recycled ASID.  Alternatively, software
+can execute the same SFENCE.VMA instruction while a different ASID is loaded
+into {\tt satp}, provided the next time {\tt satp} is loaded with the recycled
+ASID, it is simultaneously loaded with the new page table.
+
+\item If the implementation does not provide ASIDs, or software chooses to
+always use ASID 0, then after every {\tt satp} write, software should execute
+SFENCE.VMA with {\em rs1}={\tt x0}.  In the common case that no global
+translations have been modified, {\em rs2} should be set to a register other than
+{\tt x0} but which contains the value zero, so that global translations are
+not flushed.
+
+\item If software modifies a non-leaf PTE, it should execute SFENCE.VMA with
+{\em rs1}={\tt x0}.  If any PTE along the traversal path had its G bit set,
+{\em rs2} must be {\tt x0}; otherwise, {\em rs2} should be set to the ASID for
+which the translation is being modified.
+
+\item If software modifies a leaf PTE, it should execute SFENCE.VMA with {\em
+rs1} set to a virtual address within the page.  If any PTE along the traversal
+path had its G bit set, {\em rs2} must be {\tt x0}; otherwise, {\em rs2}
+should be set to the ASID for which the translation is being modified.
+
+\item For the special cases of increasing the permissions on a leaf PTE and
+changing an invalid PTE to a valid leaf, software may choose to execute
+the SFENCE.VMA lazily.  After modifying the PTE but before executing
+SFENCE.VMA, either the new or old permissions will be used.  In the latter
+case, a page fault exception might occur, at which point software should
+execute SFENCE.VMA in accordance with the previous bullet point.
+
+\end{itemize}
+\end{commentary}
+
+For forward compatibility with future versions of this specification,
+supervisor software should adhere to the following constraints on ASID usage.
+Supervisor software that uses ASIDs should use a nonzero ASID value to refer to
+the same address space across all harts in the SEE and should not use an ASID
+value of 0.  Supervisor software that does not use ASIDs should always set the
+ASID field in the {\tt satp} CSR to 0.
+
+\begin{commentary}
+A future extension may define ASIDs to be global across the SEE, facilitating
+such optimizations as multicast TLB shootdown and sharing translation caches
+between harts.
+
+The extension will provide a mechanism so that existing supervisor software
+that always uses ASID 0 will continue to function as it currently does.
 \end{commentary}
 
 \section{Sv32: Page-Based 32-bit Virtual-Memory Systems}
@@ -1169,7 +1255,9 @@ The G bit designates a {\em global} mapping.  Global mappings are those that
 exist in all address spaces.  For non-leaf PTEs, the global setting implies
 that all mappings in the subsequent levels of the page table are global.  Note
 that failing to mark a global mapping as global merely reduces performance,
-whereas marking a non-global mapping as global is an error.
+whereas marking a non-global mapping as global is a software bug that,
+after switching to an address space with a different non-global mapping for
+that address range, can unpredictably result in either mapping being used.
 
 \begin{commentary}
 Global mappings need not be stored redundantly in address-translation caches
@@ -1197,7 +1285,10 @@ Two schemes to manage the A and D bits are permitted:
       respect to other accesses to the PTE, and must atomically check
       that the PTE is valid and grants sufficient permissions.  The
       PTE update must be exact (i.e., not speculative), and observed
-      in program order by the local hart. The ordering on loads and stores
+      in program order by the local hart.  Furthermore, the PTE update
+      must appear in the global memory order no later than the explicit
+      memory access, or any subsequent explicit memory access to that
+      virtual page by the local hart.  The ordering on loads and stores
       provided by FENCE instructions and the acquire/release bits on atomic
       instructions also orders the PTE updates associated with those loads
       and stores as observed by remote harts.
@@ -1205,7 +1296,7 @@ Two schemes to manage the A and D bits are permitted:
       The PTE update is not required to be atomic with respect to the explicit
       memory access that caused the update, and the sequence is interruptible.
       However, the hart must not perform the explicit memory access before the
-      PTE update.
+      PTE update is globally visible.
 \end{itemize}
 All harts in a system must employ the same PTE-update scheme as each other.
 

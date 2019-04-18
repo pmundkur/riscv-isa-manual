@@ -54,7 +54,7 @@ in the CSRs and integer registers. CSRRW reads the old value of the
 CSR, zero-extends the value to XLEN bits, then writes it to integer
 register {\em rd}.  The initial value in {\em rs1} is written to the
 CSR.  If {\em rd}={\tt x0}, then the instruction shall not read the CSR
-and shall not cause any of the side-effects that might occur on a CSR
+and shall not cause any of the side effects that might occur on a CSR
 read.
 
 The CSRRS (Atomic Read and Set Bits in CSR) instruction reads the
@@ -94,9 +94,9 @@ register.  For CSRRSI and CSRRCI, if the uimm[4:0] field is zero, then
 these instructions will not write to the CSR, and shall not cause any
 of the side effects that might otherwise occur on a CSR write.  For
 CSRRWI, if {\em rd}={\tt x0}, then the instruction shall not read the
-CSR and shall not cause any of the side-effects that might occur on a
+CSR and shall not cause any of the side effects that might occur on a
 CSR read.  Both CSRRSI and CSRRCI will always read the CSR and cause
-any read side-effects regardless of {\em rd} and {\em rs1} fields.
+any read side effects regardless of {\em rd} and {\em rs1} fields.
 
 \begin{table}
   \centering
@@ -163,3 +163,57 @@ bits in the CSR when the old value is not required: CSRS/CSRC {\em
   \sailfname{handle\_illegal} is provided in the Sail-annotated
   version of the privileged specification.
 \end{formalcomment}
+
+\subsection*{CSR Access Ordering}
+
+On a given hart, explicit and implicit CSR access are performed in program
+order with respect to those instructions whose execution behavior is affected
+by the state of the accessed CSR. In particular, a CSR access is performed
+after the execution of any prior instructions in program order whose behavior
+modifies or is modified by the CSR state and before the execution of any
+subsequent instructions in program order whose behavior modifies or is modified
+by the CSR state. Furthermore, a CSR read access instruction returns the
+accessed CSR state before the execution of the instruction, while a CSR write
+access instruction updates the accessed CSR state after the execution of the
+instruction.
+
+Where the above program order does not hold, CSR accesses are weakly ordered,
+and the local hart or other harts may observe the CSR accesses in an order
+different from program order. In addition, CSR accesses are not ordered with
+respect to explicit memory accesses, unless a CSR access modifies the execution
+behavior of the instruction that performs the explicit memory access or unless
+a CSR access and an explicit memory access are ordered by either the syntactic
+dependencies defined by the memory model or the ordering requirements defined
+by the Memory-Ordering PMAs section in Volume II of this manual. To enforce
+ordering in all other cases, software should execute a FENCE instruction
+between the relevant accesses. For the purposes of the FENCE instruction, CSR
+read accesses are classified as device input (I), and CSR write accesses are
+classified as device output (O).
+
+\begin{commentary}
+Informally, the CSR space acts as a weakly ordered memory-mapped I/O region, as
+defined by the Memory-Ordering PMAs section in Volume II of this manual. As a
+result, the order of CSR accesses with respect to all other accesses is
+constrained by the same mechanisms that constrain the order of memory-mapped
+I/O accesses to such a region.
+
+These CSR-ordering constraints are imposed primarily to support ordering main
+memory and memory-mapped I/O accesses with respect to reads of the {\tt time}
+CSR.  With the exception of the {\tt time}, {\tt cycle}, and {\tt mcycle} CSRs,
+the CSRs defined thus far in Volumes I and II of this specification are not
+directly accessible to other harts or devices and cause no side effects visible
+to other harts or devices.  Thus, accesses to CSRs other than the
+aforementioned three can be freely reordered with respect to FENCE instructions
+without violating this specification.
+\end{commentary}
+
+For CSR accesses that cause side effects, the above ordering constraints apply
+to the order of the initiation of those side effects but does not necessarily
+apply to the order of the completion of those side effects.
+
+The hardware platform may define that accesses to certain CSRs are
+strongly ordered, as defined by the Memory-Ordering PMAs section in Volume II
+of this manual. Accesses to strongly ordered CSRs have stronger ordering
+constraints with respect to accesses to both weakly ordered CSRs and accesses
+to memory-mapped I/O regions.
+>>>>>>> master

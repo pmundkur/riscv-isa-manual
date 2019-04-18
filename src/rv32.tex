@@ -578,7 +578,7 @@ bits with zeros.
 AUIPC (add upper immediate to {\tt pc}) is used to build {\tt pc}-relative
 addresses and uses the U-type format.  AUIPC forms a 32-bit offset from the
 20-bit U-immediate, filling in the lowest 12 bits with zeros, adds this offset
-to the {\tt pc} of the AUIPC instruction, then places the result in register {\em rd}.
+to the address of the AUIPC instruction, then places the result in register {\em rd}.
 
 \begin{commentary}
 The AUIPC instruction supports two-instruction sequences to access
@@ -708,7 +708,8 @@ slots.
 
 \vspace{-0.1in} The jump and link (JAL) instruction uses the J-type
 format, where the J-immediate encodes a signed offset in multiples of
-2 bytes.  The offset is sign-extended and added to the {\tt pc}
+2 bytes.  The offset is sign-extended and added to the address of
+the jump instruction
 to form the jump target address.  Jumps can therefore target a
 $\pm$\wunits{1}{MiB} range. JAL stores the address of the instruction
 following the jump ({\tt pc}+4) into register {\em rd}.  The standard
@@ -878,7 +879,7 @@ enable macro-op fusion of the sequences:\linebreak
 All branch instructions use the B-type instruction format.  The
 12-bit B-immediate encodes signed offsets in multiples of 2 bytes.
 The offset is sign-extended and added
-to the current {\tt pc} to give the target address.  The
+to the address of the branch instruction to give the target address.  The
 conditional branch range is $\pm$\wunits{4}{KiB}.
 
 \vspace{-0.2in}
@@ -904,9 +905,9 @@ conditional branch range is $\pm$\wunits{4}{KiB}.
 \multicolumn{1}{c|}{opcode} \\
 \hline
 1 & 6 & 5 & 5 & 3 & 4 & 1 & 7 \\
-\multicolumn{2}{c}{offset[12,10:5]} & src2 & src1 & BEQ/BNE & \multicolumn{2}{c}{offset[11,4:1]} & BRANCH \\
-\multicolumn{2}{c}{offset[12,10:5]} & src2 & src1 & BLT[U] & \multicolumn{2}{c}{offset[11,4:1]} & BRANCH \\
-\multicolumn{2}{c}{offset[12,10:5]} & src2 & src1 & BGE[U]  & \multicolumn{2}{c}{offset[11,4:1]} & BRANCH \\
+\multicolumn{2}{c}{offset[12$\vert$10:5]} & src2 & src1 & BEQ/BNE & \multicolumn{2}{c}{offset[11$\vert$4:1]} & BRANCH \\
+\multicolumn{2}{c}{offset[12$\vert$10:5]} & src2 & src1 & BLT[U] & \multicolumn{2}{c}{offset[11$\vert$4:1]} & BRANCH \\
+\multicolumn{2}{c}{offset[12$\vert$10:5]} & src2 & src1 & BGE[U]  & \multicolumn{2}{c}{offset[11$\vert$4:1]} & BRANCH \\
 \end{tabular}
 \end{center}
 
@@ -1026,7 +1027,7 @@ byte-addressed and little-endian.  The EEI will
 define what portions of the address space are legal to access with
 which instructions (e.g., some addresses might be read only, or
 support word access only).  Loads with a destination of {\tt x0} must
-still raise any exceptions and action any other side effects even
+still raise any exceptions and cause any other side effects even
 though the load value is discarded.
 
 \vspace{-0.4in}
@@ -1267,7 +1268,9 @@ The fence mode field {\em fm} defines the semantics of the FENCE.  A
 FENCE with {\em fm}=0000 orders all memory operations in its
 predecessor set before all memory operations in its successor set.
 
-The optional FENCE.TSO instruction with {\em fm}=1000 orders all load
+The optional FENCE.TSO instruction is encoded as a FENCE instruction
+with {\em fm}=1000, {\em predecessor}=RW, and {\em successor}=RW.
+FENCE.TSO orders all load
 operations in its predecessor set before all memory operations in its
 successor set, and all store operations in its predecessor set before
 all store operations in its successor set.  This leaves non-AMO store
@@ -1345,7 +1348,7 @@ EBREAK  & 0 & PRIV & 0 & SYSTEM \\
 \end{tabular}
 \end{center}
 
-There two instructions cause a precise requested trap to the
+These two instructions cause a precise requested trap to the
 supporting execution environment.
 
 The ECALL instruction is used to make a service request to the
