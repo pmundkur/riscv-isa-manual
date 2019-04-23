@@ -12,7 +12,8 @@ instructions for RV32 and RV64, the user, supervisor and machine
 privilege levels, and the Sv39 address translation mode.  It passes
 the \texttt{riscv-tests} test suite, the \texttt{riscv-compliance}
 suite, and is capable of booting the RV64 ports of Linux, FreeBSD and
-seL4.
+seL4.  The Sail model does not currently model the floating point
+extensions.
 
 The Sail formal descriptions follow the instructions they describe, and
 form the clauses of an \textit{execute} function that describe the
@@ -37,11 +38,13 @@ provided with the Sail distribution at
       \sailfname{signed},\sailfname{unsigned} & Bitvector value with specified interpretation \\ \cline{1-2}
       \sailfname{EXTS}($\cdot$)     & Sign-extension to inferred width \\ \cline{1-2}
       \sailfname{EXTZ}($\cdot$)     & Zero-extension to inferred width \\ \cline{1-2}
-      \sailfname{quot_round_zero}   & Integer quotient rounded towards zero  \\ \cline{1-2}
-      \sailfname{rem_round_zero}    & Remainder corresponding to the above quotient   \\ \cline{1-2}
+      \sailfname{quot\_round\_zero} & Integer quotient rounded towards zero  \\ \cline{1-2}
+      \sailfname{rem\_round\_zero}  & Remainder corresponding to the above quotient   \\ \cline{1-2}
+      \sailfname{<\_u,<=\_u, >=\_u} & Unsigned comparisons \\ \cline{1-2}
+      \sailfname{<\_s,<=\_s, >=\_s} & Signed comparisons   \\ \cline{1-2}
     \end{tabular}
   \end{center}
-  \caption{Selected Sail definitions used in this document.}
+  \caption{Selected Sail definitions and idioms used in this document.}
 \end{table}
 
 The formal description included in this draft omits a fair amount of
@@ -57,11 +60,11 @@ the more privileged modes.  The portions omitted include:
 \item An expansion of the functions that access physical memory
   (\sailfname{mem\_read}, \sailfname{mem\_write\_value}), perform
   address translation (\sailfname{translateAddr}), and dispatch
-  exceptions (\sailfname{handle\_mem\_exception},
+  exceptions (\sailfname{handle\_mem\_exception}, \sailfname{handle\_illegal},
   \sailfname{handle\_exception}).  Some of these functions are
   described in the formal specification included in the Sail version
   of the privileged architecture specification.
 \end{itemize}
 
-The RISC-V model repository contains a reading guide for the model as
-well as a guide to extending the model.
+The RISC-V model repository contains a reading guide as well as a
+guide to extending the model.

@@ -73,7 +73,10 @@ shift both arguments left by 32 bits, then use MULH[[S]U].
 \begin{formalspec}
   \sailfclMULexecute
 \end{formalspec}
-%%% SAIL-TODO: explain the mapping of the clause to each instruction.
+\begin{formalcomment}
+  \sailfname{haveMulDiv} is a function that checks whether the ``M''
+  extension is enabled in the model.
+\end{formalcomment}
 
 \section{Division Operations}
 

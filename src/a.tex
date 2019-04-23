@@ -281,6 +281,22 @@ proposals as an optional standard extension ``T''.
 \end{formalspec}
 
 \begin{formalcomment}
+  \sailfname{haveAtomics} is a function that checks whether the ``A''
+  extension is enabled in the model.
+
+  \sailfname{speculate\_conditional} is a function used in the
+  concurrency model.  For the purpose of the sequential specification,
+  it can be treated as always returning \sailfname{true}.
+
+  The Sail model supports extensions that can check and modify memory
+  addresses generated during instruction
+  execution. \sailfname{ext\_data\_check\_addr} is a function that can
+  checks and potentially transforms addresses used for data access,
+  returning an error \sailfname{Ext\_DataAddr\_Error} or a modified
+  address via \sailfname{Ext\_DataAddr\_OK}.  The default model uses
+  an implementation of \sailfname{ext\_data\_check\_addr} that always
+  returns the input address.
+
   Exception handling and \sailfname{handle\_mem\_exception} are
   discussed in the Sail-annotated version of the privileged
   specification.  The functions \sailfname{load\_reservation()} and
@@ -423,4 +439,19 @@ x0 and has both {\em aq} and {\em rl} set.
 \begin{formalspec}
   \sailfclAMOexecute
 \end{formalspec}
-%%% SAIL-TODO: explain the mapping of the clause to each instruction.
+\begin{formalcomment}
+  The Sail model supports extensions that can check and modify memory
+  addresses generated during instruction
+  execution. \sailfname{ext\_data\_check\_addr} is a function that can
+  checks and potentially transforms addresses used for data access,
+  returning an error \sailfname{Ext\_DataAddr\_Error} or a modified
+  address via \sailfname{Ext\_DataAddr\_OK}.  The default model uses
+  an implementation of \sailfname{ext\_data\_check\_addr} that always
+  returns the input address.
+
+  Exception handling and \sailfname{handle\_mem\_exception} are
+  discussed in the Sail-annotated version of the privileged
+  specification.  The functions \sailfname{load\_reservation()} and
+  \sailfname{cancel\_reservation()} are platform-dependent and are
+  external to the formal specification.
+\end{formalcomment}

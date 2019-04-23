@@ -815,6 +815,15 @@ elsewhere in the address space.
   \sailfclRISCVUnderscoreJALRexecute
 \end{formalspec}
 \begin{formalcomment}
+  The Sail model supports extensions that can check and modify memory
+  addresses generated during instruction
+  execution. \sailfname{ext\_control\_check\_addr} is a function that
+  can checks and potentially transforms control flow addresses,
+  returning an error \sailfname{Ext\_ControlAddr\_Error} or a modified
+  address via \sailfname{Ext\_ControlAddr\_OK}.  The default model
+  uses an implementation of \sailfname{ext\_control\_check\_addr} that
+  always returns the input address.
+
   Exception handling and \sailfname{handle\_mem\_exception} are
   discussed in the Sail-annotated version of the privileged
   specification.
@@ -929,6 +938,15 @@ any negative index will compare greater than any nonnegative bound.
   \sailfclBTYPEexecute
 \end{formalspec}
 \begin{formalcomment}
+  The Sail model supports extensions that can check and modify memory
+  addresses generated during instruction
+  execution. \sailfname{ext\_control\_check\_addr} is a function that
+  can checks and potentially transforms control flow addresses,
+  returning an error \sailfname{Ext\_ControlAddr\_Error} or a modified
+  address via \sailfname{Ext\_ControlAddr\_OK}.  The default model
+  uses an implementation of \sailfname{ext\_control\_check\_addr} that
+  always returns the input address.
+
   Exception handling and \sailfname{handle\_mem\_exception} are
   discussed in the Sail-annotated version of the privileged
   specification.
@@ -1173,6 +1191,15 @@ are aligned.
   \sailfname{aq} and \sailfname{rl} arguments are acquire and release
   ordering annotations over which the underlying memory accesses are
   parameterized.
+
+  The Sail model supports extensions that can check and modify memory
+  addresses generated during instruction
+  execution. \sailfname{ext\_data\_check\_addr} is a function that
+  can checks and potentially transforms addresses used for data access,
+  returning an error \sailfname{Ext\_DataAddr\_Error} or a modified
+  address via \sailfname{Ext\_DataAddr\_OK}.  The default model
+  uses an implementation of \sailfname{ext\_data\_check\_addr} that
+  always returns the input address.
 \end{formalcomment}
 
 %%% SAIL-TODO: add some explanation of write_ea, since that belongs to this volume of the spec.
