@@ -3,14 +3,16 @@
 
 This version of the document embeds a formal description of selected
 instruction semantics as specified in the Sail ISA description
-language\cite{sail-site}, specifically those of RV64IMAC.  This
-description is generated directly from the Sail sources of the RISC-V
-model, available at \url{https://github.com/rems-project/sail-riscv}.
+language\cite{sail-site}.  This description is generated directly from
+the Sail sources of the RISC-V model, available at
+\url{https://github.com/rems-project/sail-riscv}.
 
-The Sail model of RISC-V currently implements the RV64IMAC dialect,
-the user, supervisor and machine privilege levels, and the Sv39
-address translation mode.  It passes the \texttt{riscv-tests} test
-suite, and is capable of booting Linux and seL4.
+The Sail model of RISC-V currently implements the IMAC subset of
+instructions for RV32 and RV64, the user, supervisor and machine
+privilege levels, and the Sv39 address translation mode.  It passes
+the \texttt{riscv-tests} test suite, the \texttt{riscv-compliance}
+suite, and is capable of booting the RV64 ports of Linux, FreeBSD and
+seL4.
 
 The Sail formal descriptions follow the instructions they describe, and
 form the clauses of an \textit{execute} function that describe the
@@ -27,7 +29,6 @@ provided with the Sail distribution at
   \begin{center}
     \begin{tabular}{|l|l|} \cline{1-2}
       \sailfname{PC}                & Current program counter \\ \cline{1-2}
-      \sailfname{newPC}             & Next value of program counter \\ \cline{1-2}
       \sailfname{X}                 & Integer register file \\ \cline{1-2}
       \sailfname{X}(r)              & Integer register $r$  \\ \cline{1-2}
       \sailfname{zreg}              & Register $0$ \\  \cline{1-2}
@@ -60,8 +61,7 @@ the more privileged modes.  The portions omitted include:
   \sailfname{handle\_exception}).  Some of these functions are
   described in the formal specification included in the Sail version
   of the privileged architecture specification.
-\item Formal definitions of instructions that are RV32-only (e.g. in
-  the RVC extension).
-\item Instructions that access user-mode visible CSRs are not included
-  (RDCYCLE, RDINSTRET, RDTIME).
 \end{itemize}
+
+The RISC-V model repository contains a reading guide for the model as
+well as a guide to extending the model.
