@@ -35,20 +35,6 @@ addresses.
   \sailfncheckedMemWrite
 \end{formalspec}
 
-\section{Privilege Transition Instructions}
-\label{s:priv-sail-instrs}
-
-The instructions that generate privilege transitions are implemented
-by generating the corresponding values of type
-\sailfname{ctl\_result}.  The handling of these values is described
-below in Section~\ref{s:priv-sail-traps}.
-
-\begin{formalspec}
-  \sailfclECALLexecute
-  \sailfclSRETexecute
-  \sailfclMRETexecute
-\end{formalspec}
-
 \section{CSR access control}
 \label{s:priv-sail-csr-access}
 
@@ -79,7 +65,27 @@ model the N standard extension.
 
 \begin{formalspec}
   \sailfnfindPendingInterrupt
+  \sailtypeinterruptSet
+  \sailfnprocessPending
+  \sailfngetPendingSet
   \sailfndispatchInterrupt
+\end{formalspec}
+
+\section{Trap vector and trap return addresses}
+\label{s:priv-sail-tvecs}
+
+\sailfname{tvec\_addr} describes how the {\tt xtvec} registers are
+interpreted, while \sailfname{prepare\_trap\_vector} describes how the
+addresses in the {\tt xtvec} registers are used. The {\tt xepc}
+registers are used by \sailfname{get\_trap\_vector} and
+\sailfname{set\_trap\_vector} for computing the return addresses from
+traps.
+
+\begin{formalspec}
+  \sailfntvecAddr
+  \sailfnprepareTrapVector
+  \sailfngetXretTarget
+  \sailfnsetXretTarget
 \end{formalspec}
 
 \section{Trap handling and privilege transition}
@@ -106,6 +112,8 @@ convenient single-purpose helper wrapper functions.
 \label{s:priv-sail-vmem}
 
 This section covers the support of virtual memory in supervisor mode.
+We specify only the Sv39 address translation scheme below, since the
+Sv32 and Sv48 schemes follow a very similar structure.
 
 \subsection{PTE handling}
 \label{ss:priv-sail-ptes}

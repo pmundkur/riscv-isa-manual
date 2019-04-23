@@ -1072,6 +1072,15 @@ The extension will provide a mechanism so that existing supervisor software
 that always uses ASID 0 will continue to function as it currently does.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclSFENCEUnderscoreVMAexecute
+\end{formalspec}
+\begin{formalcomment}
+  The \sailfname{flush\_TLB} function is not described in the Sail
+  model included in this document, since the specification leaves the
+  details of a TLB unspecified.
+\end{formalcomment}
+
 \section{Sv32: Page-Based 32-bit Virtual-Memory Systems}
 \label{sec:sv32}
 
@@ -1319,6 +1328,10 @@ if the physical address is insufficiently aligned.
 For non-leaf PTEs, the D, A, and U bits are reserved for future use and
 must be cleared by software for forward compatibility.
 
+\begin{addformalcomment}
+  The handling of PTEs in the Sail model is specified in \S\ref{ss:priv-sail-ptes}.
+\end{addformalcomment}
+
 \subsection{Virtual Address Translation Process}
 \label{sv32algorithm}
 
@@ -1530,6 +1543,13 @@ aligned.
 
 The algorithm for virtual-to-physical address translation is the same as in
 Section~\ref{sv32algorithm}, except LEVELS equals 3 and PTESIZE equals 8.
+
+\begin{addformalcomment}
+  The Sail specification of the Sv39 address translation scheme is in
+  \S\ref{ss:priv-sail-addr-trans}.  We do not include the Sail
+  specifications of the Sv32 and Sv48 schemes in this document since
+  they have a very similar structure.
+\end{addformalcomment}
 
 \section{Sv48: Page-Based 48-bit Virtual-Memory System}
 \label{sec:sv48}

@@ -560,6 +560,10 @@ interrupted context, will save the privilege stack before re-enabling
 interrupts, so only one entry per stack is required.
 \end{commentary}
 
+\begin{addformalcomment}
+  The role played by {\tt mstatus} in traps and privilege transition in the formal Sail model is described in \S\ref{s:priv-sail-traps}.
+\end{addformalcomment}
+
 The MRET, SRET, or URET instructions are used to return from
 traps in M-mode, S-mode, or U-mode respectively.  When
 executing an {\em x}\,RET instruction, supposing {\em x}\,PP holds the
@@ -684,6 +688,13 @@ encoded in page-table entries.  In particular, they have no impact on whether
 access exceptions are raised due to PMAs or PMP.
 \end{commentary}
 
+\begin{addformalcomment}
+  The handling of memory privilege in {\tt mstatus} in the Sail formal
+  model can be seen in \S\ref{ss:priv-sail-ptes} and in the
+  \sailfname{translateAddr} function in
+  \S\ref{ss:priv-sail-addr-trans}.
+\end{addformalcomment}
+
 \subsubsection{Virtualization Support in {\tt mstatus} Register}
 \label{virt-control}
 
@@ -736,6 +747,11 @@ supported.
 Trapping SRET is necessary to emulate the hypervisor extension
 (see Chapter~\ref{hypervisor}) on implementations that do not provide it.
 \end{commentary}
+
+\begin{addformalcomment}
+  The role played by TW and TSR in the Sail model can be seen in
+  \S\ref{s:priv-sail-traps}, and that of TVM in \S\ref{s:priv-sail-csr-access}.
+\end{addformalcomment}
 
 \subsubsection{Extension Context Status in {\tt mstatus} Register}
 
@@ -1067,6 +1083,11 @@ alignment constraints than MODE=Direct.
 Reset and NMI vector locations are given in a platform specification.
 \end{commentary}
 
+\begin{addformalcomment}
+  The Sail specification of the handling of the {\tt mtvec} register
+  is in \S\ref{s:priv-sail-tvecs}.
+\end{addformalcomment}
+
 \subsection{Machine Trap Delegation Registers ({\tt medeleg} and {\tt mideleg})}
 
 By default, all traps at any privilege level are handled in machine
@@ -1189,6 +1210,10 @@ delegation control is located in bit 5).
 Some exceptions cannot occur at less privileged modes, and corresponding
 {\em x}\,{\tt edeleg} bits should be hardwired to zero.  In particular,
 {\tt medeleg}[11] and {\tt sedeleg}[11:9] are all hardwired to zero.
+
+\begin{addformalcomment}
+  The specification of interrupt and exception delegation in the Sail formal model is in \S\ref{s:priv-sail-intrs} and \S\ref{s:priv-sail-traps}.
+\end{addformalcomment}
 
 \subsection{Machine Interrupt Registers ({\tt mip} and {\tt mie})}
 
@@ -1412,7 +1437,7 @@ Synchronous exceptions are of lower priority than all interrupts.
 \begin{commentary}
   The machine-level interrupt fixed-priority ordering rules were developed
   with the following rationale.
-  
+
   Interrupts for higher privilege modes must be serviced before
   interrupts for lower privilege modes to support preemption.
 
@@ -1438,6 +1463,11 @@ Synchronous exceptions are of lower priority than all interrupts.
   Synchronous exceptions are given the lowest priority to minimize
   worst-case interrupt latency.
 \end{commentary}
+
+\begin{addformalcomment}
+  The processing of the {\tt mip} and {\tt mie} registers in the Sail
+  model is specified in \S\ref{s:priv-sail-intrs}.
+\end{addformalcomment}
 
 \subsection{Machine Timer Registers ({\tt mtime} and {\tt mtimecmp})}
 
@@ -1862,6 +1892,11 @@ MXLEN \\
 \label{mepcreg}
 \end{figure}
 
+\begin{addformalcomment}
+  The use of {\tt mepc} in the Sail model is specified in
+  \S\ref{s:priv-sail-tvecs} and \S\ref{s:priv-sail-traps}.
+\end{addformalcomment}
+
 \subsection{Machine Cause Register ({\tt mcause})}
 
 The {\tt mcause} register is an MXLEN-bit read-write register formatted as
@@ -2118,6 +2153,11 @@ If the feature to return the faulting instruction bits is implemented, {\tt
 mtval} must also be able to hold all values less than $2^N$, where $N$ is the
 smaller of XLEN and ILEN.
 
+\begin{addformalcomment}
+  The use of {\tt mtval} in the Sail model is specified in
+  \S\ref{s:priv-sail-tvecs} and \S\ref{s:priv-sail-traps}.
+\end{addformalcomment}
+
 \section{Machine-Mode Privileged Instructions}
 
 \subsection{Environment Call and Breakpoint}
@@ -2153,6 +2193,11 @@ so that environment call exceptions can be selectively delegated.  A typical
 use case for Unix-like operating systems is to delegate to S-mode the
 environment-call-from-U-mode exception but not the others.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclECALLexecute
+  \sailfclEBREAKexecute
+\end{formalspec}
 
 The EBREAK instruction is used by debuggers to cause control to be transferred
 back to a debugging environment.  It generates a breakpoint exception and
@@ -2216,6 +2261,12 @@ to allow classic virtualization of OS code using the ERET instruction.
 It then became more orthogonal to support a different {\em x}\,RET
 instruction per privilege level.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclMRETexecute
+  \sailfclSRETexecute
+  \sailfclURETexecute
+\end{formalspec}
 
 If the A extension is supported, the {\em x}\,RET instruction is
 allowed to clear any outstanding LR address reservation but is not
@@ -2325,6 +2376,13 @@ The same ``wait-for-event'' template might be used for possible future
 extensions that wait on memory locations changing, or message
 arrival.
 \end{commentary}
+\begin{formalspec}
+  \sailfclWFIexecute
+\end{formalspec}
+\begin{addformalcomment}
+  The \sailfname{platform\_wfi} function here implements a
+  platform-specific WFI semantics.
+\end{addformalcomment}
 
 \section{Reset}
 \label{sec:reset}

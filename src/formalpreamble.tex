@@ -82,3 +82,17 @@
   \end{quotation}
   \vspace{-0.2in}
 }
+
+% This is intended to be used right after a commentary block, typically in the privileged spec.
+\newenvironment{addformalcomment}
+{ \vspace{-0.2in}
+  \begin{quotation}
+  \noindent
+  \small \em
+  \rule{\linewidth}{1pt}\\
+}
+{ \hfill \\
+%  \rule{\linewidth}{1pt}
+  \end{quotation}
+  \vspace{-0.2in}
+}
