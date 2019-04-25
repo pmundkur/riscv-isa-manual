@@ -1,8 +1,6 @@
 \chapter{Formal Specification in Sail}
 \label{chap:priv-sail-model}
 
-%%% SAIL-TODO: add various forward references from earlier sections to this chapter.
-
 This appendix includes selections from the Sail formal model of the
 RISC-V ISA that highlight aspects of privileged mode operation.
 Please refer to the complete Sail model at
@@ -143,7 +141,7 @@ converts any resulting error into an architectural exception using
 \sailfname{translationException}.  \sailfname{translateAddr}is the
 entry point for address translation, and is called by the instructions
 that access memory as described in the user-level specification.
-sailfname{translateAddr} uses \sailfname{translationMode} to dispatch
+\sailfname{translateAddr} uses \sailfname{translationMode} to dispatch
 to the appropriate translation mode.
 
 \sailfname{plat\_enable\_dirty\_update} is an external platform-level
