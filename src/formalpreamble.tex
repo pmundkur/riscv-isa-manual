@@ -3,6 +3,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[scaled=0.82]{beramono}
 \usepackage{amssymb}
+\usepackage[tikz]{mdframed}
 
 % Set default Sail source parameters as a style,
 % to avoid conflicts with other sources.
@@ -69,16 +70,17 @@
   \end{quotation}
   \vspace{-0.2in}
 }
-% This is intended to be used right after a formalspec, and so omits the leading \rule.
+% This is intended to be used right after a formalspec.
 \newenvironment{formalcomment}
-{ \vspace{-0.4in}
+{ \vspace{-0.2in}
   \begin{quotation}
-  \noindent
-  \small \\%\em
+  \begin{mdframed}[linewidth=1.5pt,roundcorner=8pt]
+  \noindent \small \em
 %  \rule{\linewidth}{1pt}\\
 }
 { \hfill \\
-  \rule{\linewidth}{1pt}
+%  \rule{\linewidth}{1.5pt}
+  \end{mdframed}
   \end{quotation}
   \vspace{-0.2in}
 }
@@ -87,12 +89,13 @@
 \newenvironment{addformalcomment}
 { \vspace{-0.2in}
   \begin{quotation}
-  \noindent
-  \small \em
-  \rule{\linewidth}{1pt}\\
+  \begin{mdframed}[linewidth=1.5pt,roundcorner=8pt]
+  \noindent \small \em
+%  \rule{\linewidth}{1.5pt}\\
 }
 { \hfill \\
 %  \rule{\linewidth}{1pt}
+  \end{mdframed}
   \end{quotation}
   \vspace{-0.2in}
 }
