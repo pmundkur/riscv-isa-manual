@@ -15,6 +15,7 @@
 \usepackage{comment}
 \usepackage{enumitem}
 \usepackage{verbatimbox}
+\usepackage{amsmath}
 
 \usepackage[olditem,oldenum]{paralist}
 
@@ -60,34 +61,38 @@
 {\end{tightlist}}
 
 \newenvironment{commentary}
-{ \vspace{-0.2in}
-  \begin{quotation}
-  \noindent
-  \small \em
-  \rule{\linewidth}{1pt}\\
+{	\vspace{-1.5mm}
+	\list{}{
+		\topsep		0mm
+		\partopsep	0mm
+		\listparindent	1.5em
+		\itemindent	\listparindent
+		\rightmargin	\leftmargin
+		\parsep		0mm
+	}
+	\item
+	\small\em
+	\noindent\nopagebreak\rule{\linewidth}{1pt}\par
+	\noindent\ignorespaces
 }
-{
-  \end{quotation}
-  \vspace{-0.2in}
-}
+{\endlist}
 
-
-\newenvironment{samepage-commentary}
-{\begin{samepage} \begin{commentary}}
-{\end{commentary} \end{samepage}}
-
-\newenvironment{discussion}
-{ \vspace{-0.2in}
-  \begin{quotation}
-  \noindent
-  \small \em 
-  \rule{\linewidth}{1pt} \\
-  {\bf Discussion:}
-}
-{ 
-  \end{quotation}
-  \vspace{-0.2in}
-}
+%\newenvironment{discussion}
+%{	\vspace{-1.5mm}
+%	\list{}{
+%		\topsep		0mm
+%		\partopsep	0mm
+%		\listparindent	1.5em
+%		\itemindent	\listparindent
+%		\rightmargin	\leftmargin
+%		\parsep		0mm
+%	}
+%	\item
+%	\small\em
+%	\noindent\nopagebreak\rule{\linewidth}{1pt}\par
+%	\noindent\textbf{Discussion:}
+%}
+%{\endlist}
 
 % Other commands and parameters
 
@@ -95,6 +100,9 @@
 \setlength{\parindent}{0in}
 \setlength{\parskip}{10pt}
 \sloppy
+\raggedbottom
+\clubpenalty=10000
+\widowpenalty=10000
 
 % Commands for register format figures.
 
@@ -137,5 +145,6 @@
 \newcommand{\wlrl}{\textbf{WLRL}}
 \newcommand{\warl}{\textbf{WARL}}
 
-\input{formalpreamble.tex}
+\newcommand{\unspecified}{\textsc{unspecified}}
 
+\input{formalpreamble.tex}

@@ -1,14 +1,74 @@
 \chapter{Preface}
 
-This document describes the RISC-V privileged architecture.  This
-release, version \privrev, will be used in ratifying the machine and
-supervisor ISA modules.
-
 \begin{addformalcomment}
 \textbf{This version of the document is a draft containing annotations
   from the Sail formal model of RISC-V.  See
   Section~\ref{sect:priv-sail-model}.}
 \end{addformalcomment}
+
+This is {\bf a draft of} version 1.12 of the RISC-V privileged
+architecture proposal.
+The document contains the following versions of the RISC-V ISA
+modules:
+
+{
+\begin{table}[hbt]
+  \centering
+  \begin{tabular}{|c|l|c|}
+    \hline
+    Module             & Version  & Status\\
+    \hline
+    \em Machine ISA    & \em 1.12 & \em Draft \\
+    \em Supervisor ISA & \em 1.12 & \em Draft \\
+    \em Hypervisor ISA & \em 0.6  & \em Draft \\
+    \em N Extension    & \em 1.1 & \em Draft \\
+    \hline
+  \end{tabular}
+\end{table}
+}
+
+The Machine and Supervisor ISAs, version 1.11, have been ratified by
+the RISC-V Foundation.  Version 1.12 of these modules, described in
+this document, is a minor revision to version 1.11.
+
+The following changes have been made since version 1.11, which, while not
+strictly backwards compatible, are not anticipated to cause software
+portability problems in practice:
+\vspace{-0.2in}
+\begin{itemize}
+  \parskip 0pt
+  \itemsep 1pt
+\item Changed MRET and SRET to clear {\tt mstatus}.MPRV when leaving M-mode.
+\item Reserved additional {\tt satp} patterns for future use.
+\item Stated that the {\tt scause} Exception Code field must implement
+  bits 4--0 at minimum.
+\item Relaxed I/O regions have been specified to follow RVWMO.  The previous
+  specification implied that PPO rules other than fences and acquire/release
+  annotations did not apply.
+\item Constrained the LR/SC reservation set size and shape when using
+  page-based virtual memory.
+\item PMP reset values are now platform-defined.
+\end{itemize}
+
+Additionally, the following compatible changes have been made since version
+1.11:
+\vspace{-0.2in}
+\begin{itemize}
+  \parskip 0pt
+  \itemsep 1pt
+\item Defined the RV32-only CSR {\tt mstatush}, which contains most of the
+  same fields as the upper 32 bits of RV64's {\tt mstatus}.
+\item Permitted the unconditional delegation of less-privileged interrupts.
+\item Added optional big-endian and bi-endian support.
+\end{itemize}
+
+Finally, the hypervisor architecture proposal has been extensively revised.
+
+\newpage
+
+\section*{Preface to Version 1.11}
+
+This is version 1.11 of the RISC-V privileged architecture.
 
 The document contains the following versions of the RISC-V ISA
 modules:
@@ -20,19 +80,20 @@ modules:
     \hline
     Module             & Version  & Status\\
     \hline
-    \bf Machine ISA    & \bf 1.11 & \bf Ratification \\
-    \bf Supervisor ISA & \bf 1.11 & \bf Ratification \\
+    \bf Machine ISA    & \bf 1.11 & \bf Ratified \\
+    \bf Supervisor ISA & \bf 1.11 & \bf Ratified \\
     \em Hypervisor ISA & \em 0.3  & \em Draft \\
     \hline
   \end{tabular}
 \end{table}
 }
 
-The changes in this version of the document include:
+Changes from version 1.10 include:
 \vspace{-0.2in}
 \begin{itemize}
   \parskip 0pt
   \itemsep 1pt
+  \item Moved Machine and Supervisor spec to {\bf Ratified} status.
 \item Improvements to the description and commentary.
 \item Added a draft proposal for a hypervisor extension.
 \item Specified which interrupt sources are reserved for standard use.

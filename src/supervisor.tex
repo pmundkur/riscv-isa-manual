@@ -1,4 +1,4 @@
-\chapter{Supervisor-Level ISA, Version 1.11}
+\chapter{Supervisor-Level ISA, Version 1.12}
 \label{supervisor}
 
 This chapter describes the RISC-V supervisor-level architecture, which
@@ -12,7 +12,7 @@ interrupts, to support clean virtualization.
 In this spirit, certain supervisor-level facilities, including requests for
 timer and interprocessor interrupts, are provided by implementation-specific
 mechanisms.  In some systems, a supervisor execution environment (SEE)
-provides these facilities in a manner specified by a superivsor binary
+provides these facilities in a manner specified by a supervisor binary
 interface (SBI).  Other systems supply these facilities directly, through some
 other implementation-defined mechanism.
 \end{commentary}
@@ -25,7 +25,7 @@ A number of CSRs are provided for the supervisor.
 The supervisor should only view CSR state that should be visible to a
 supervisor-level operating system.  In particular, there is no
 information about the existence (or non-existence) of higher privilege
-levels (hypervisor or machine) visible in the CSRs accessible by the
+levels (machine level or other) visible in the CSRs accessible by the
 supervisor.
 
 Many supervisor CSRs are a subset of the equivalent machine-mode CSR,
@@ -46,7 +46,8 @@ register keeps track of the processor's current operating state.
 {\footnotesize
 \begin{center}
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{cWcccccWcWccWcc}
+\scalebox{0.95}{
+\begin{tabular}{cWcccccWccccWcc}
 \\
 \instbit{31} &
 \instbitrange{30}{20} &
@@ -57,10 +58,10 @@ register keeps track of the processor's current operating state.
 \instbitrange{14}{13} &
 \instbitrange{12}{9} &
 \instbit{8} &
-\instbitrange{7}{6} &
+\instbit{7} &
+\instbit{6} &
 \instbit{5} &
-\instbit{4} &
-\instbitrange{3}{2} &
+\instbitrange{4}{2} &
 \instbit{1} &
 \instbit{0} \\
 \hline
@@ -74,15 +75,15 @@ register keeps track of the processor's current operating state.
 \multicolumn{1}{c|}{\wpri} &
 \multicolumn{1}{c|}{SPP} &
 \multicolumn{1}{c|}{\wpri} &
+\multicolumn{1}{c|}{UBE} &
 \multicolumn{1}{c|}{SPIE} &
-\multicolumn{1}{c|}{UPIE} &
 \multicolumn{1}{c|}{\wpri} &
 \multicolumn{1}{c|}{SIE}  &
-\multicolumn{1}{c|}{UIE}
+\multicolumn{1}{c|}{\wpri}
 \\
 \hline
-1 & 11 & 1 & 1 & 1 & 2 & 2 & 4 & 1 & 2 & 1 & 1 & 2 & 1 & 1 \\
-\end{tabular}
+1 & 11 & 1 & 1 & 1 & 2 & 2 & 4 & 1 & 1 & 1 & 1 & 3 & 1 & 1 \\
+\end{tabular}}
 \end{center}
 }
 \vspace{-0.1in}
@@ -94,7 +95,7 @@ register keeps track of the processor's current operating state.
 {\footnotesize
 \begin{center}
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{cScScccc}
+\begin{tabular}{cMFScccc}
 \\
 \instbit{SXLEN-1} &
 \instbitrange{SXLEN-2}{34} &
@@ -107,7 +108,7 @@ register keeps track of the processor's current operating state.
 \hline
 \multicolumn{1}{|c|}{SD} &
 \multicolumn{1}{c|}{\wpri} &
-\multicolumn{1}{c|}{UXL} &
+\multicolumn{1}{c|}{UXL[1:0]} &
 \multicolumn{1}{c|}{\wpri} &
 \multicolumn{1}{c|}{MXR} &
 \multicolumn{1}{c|}{SUM} &
@@ -116,33 +117,33 @@ register keeps track of the processor's current operating state.
 \hline
 1 & SXLEN-35 & 2 & 12 & 1 & 1 & 1 & \\
 \end{tabular}
-\begin{tabular}{ccccccccccc}
+\begin{tabular}{cWWFccccWcc}
 \\
 &
 \instbitrange{16}{15} &
 \instbitrange{14}{13} &
 \instbitrange{12}{9} &
 \instbit{8} &
-\instbitrange{7}{6} &
+\instbit{7} &
+\instbit{6} &
 \instbit{5} &
-\instbit{4} &
-\instbitrange{3}{2} &
+\instbitrange{4}{2} &
 \instbit{1} &
 \instbit{0} \\
 \hline
  &
-\multicolumn{1}{c|}{XS[1:0]} &
-\multicolumn{1}{|c|}{FS[1:0]} &
+\multicolumn{1}{|c|}{XS[1:0]} &
+\multicolumn{1}{c|}{FS[1:0]} &
 \multicolumn{1}{c|}{\wpri} &
 \multicolumn{1}{c|}{SPP} &
 \multicolumn{1}{c|}{\wpri} &
+\multicolumn{1}{c|}{UBE} &
 \multicolumn{1}{c|}{SPIE} &
-\multicolumn{1}{c|}{UPIE} &
 \multicolumn{1}{c|}{\wpri} &
 \multicolumn{1}{c|}{SIE} &
-\multicolumn{1}{c|}{UIE} \\
+\multicolumn{1}{c|}{\wpri} \\
 \hline
- & 2 & 2 & 4 & 1 & 2 & 1 & 1 & 2 & 1 & 1 \\
+ & 2 & 2 & 4 & 1 & 1 & 1 & 1 & 3 & 1 & 1 \\
 \end{tabular}
 \end{center}
 }
@@ -169,21 +170,15 @@ trapping into supervisor mode.  When a trap is taken into supervisor
 mode, SPIE is set to SIE, and SIE is set to 0.  When an SRET instruction is
 executed, SIE is set to SPIE, then SPIE is set to 1.
 
-The UIE bit enables or disables user-mode interrupts.  User-level interrupts
-are enabled only if UIE is set and the hart is running in user-mode.  The UPIE
-bit indicates whether user-level interrupts were enabled prior to taking
-a user-level trap.  When a URET instruction is executed, UIE is
-set to UPIE, and UPIE is set to 1.  User-level interrupts are optional.  If
-omitted, the UIE and UPIE bits are hardwired to zero.
+The {\tt sstatus} register is a subset of the {\tt mstatus} register.
 
 \begin{commentary}
-The {\tt sstatus} register is a subset of the {\tt mstatus} register.  In
-a straightforward implementation, reading or writing any field in {\tt
-sstatus} is equivalent to reading or writing the homonymous field in
-{\tt mstatus}.
+In a straightforward implementation, reading or writing any field in
+{\tt sstatus} is equivalent to reading or writing the homonymous field
+in {\tt mstatus}.
 \end{commentary}
 
-\subsection{Base ISA Control in {\tt sstatus} Register}
+\subsubsection{Base ISA Control in {\tt sstatus} Register}
 
 The UXL field controls the value of XLEN for U-mode, termed {\em UXLEN},
 which may differ from the value of XLEN for S-mode, termed {\em SXLEN}.  The
@@ -203,7 +198,7 @@ effective addresses are taken modulo $2^{UXLEN}$.  For example, when UXLEN=32
 and SXLEN=64, user-mode memory accesses reference the lowest \wunits{4}{GiB}
 of the address space.
 
-\subsection{Memory Privilege in {\tt sstatus} Register}
+\subsubsection{Memory Privilege in {\tt sstatus} Register}
 \label{sec:sum}
 
 The MXR (Make eXecutable Readable) bit modifies the privilege with which loads
@@ -240,6 +235,33 @@ be realized by mapping the physical code pages at multiple virtual addresses
 with different permissions, possibly with the assistance of the
 instruction page-fault handler to direct supervisor software to use the
 alternate mapping.
+\end{commentary}
+
+\subsubsection{Endianness Control in {\tt sstatus} Register}
+
+The UBE bit is a \warl\ field that controls the endianness of explicit
+memory accesses made from U-mode, which may differ from the endianness of
+memory accesses in S-mode.
+An implementation may hardwire UBE to specify always the same endianness
+as for S-mode.
+
+UBE controls whether explicit
+load and store memory accesses made from U-mode are little-endian (UBE=0)
+or big-endian (UBE=1).
+
+UBE has no effect on instruction fetches, which are {\em implicit} memory
+accesses that are always little-endian.
+
+For {\em implicit} accesses to supervisor-level memory management data
+structures, such as page tables, S-mode endianness always applies and UBE
+is ignored.
+
+\begin{commentary}
+Standard RISC-V ABIs are expected to be purely little-endian-only or
+big-endian-only, with no accommodation for mixing endianness.
+Nevertheless, endianness control has been defined so as to permit an
+OS of one endianness to execute user-mode programs of the opposite
+endianness.
 \end{commentary}
 
 \subsection{Supervisor Trap Vector Base Address Register ({\tt stvec})}
@@ -298,162 +320,185 @@ a supervisor-mode timer interrupt (see Table~\ref{scauses}) causes the {\tt pc}
 to be set to BASE+{\tt 0x14}.
 Setting MODE=Vectored may impose a stricter alignment constraint on BASE.
 
-\begin{commentary}
-When vectored interrupts are enabled, interrupt cause 0, which corresponds to
-user-mode software interrupts, are vectored to the same location as
-synchronous exceptions.  This ambiguity does not arise in practice for
-supervisor software, since user-mode software interrupts are either disabled
-or delegated to user mode.
-\end{commentary}
-
 \subsection{Supervisor Interrupt Registers ({\tt sip} and {\tt sie})}
 
 The {\tt sip} register is an SXLEN-bit read/write register containing
 information on pending interrupts, while {\tt sie} is the corresponding
 SXLEN-bit read/write register containing interrupt enable bits.
+Interrupt cause number \textit{i} (as reported in CSR {\tt scause},
+Section~\ref{sec:scause}) corresponds with bit~\textit{i} in both
+{\tt sip} and {\tt sie}.
+Bits 15:0 are allocated to standard interrupt causes only, while bits 16
+and above are available for platform or custom use.
 
-\begin{figure*}[h!]
+\begin{figure}[h!]
 {\footnotesize
 \begin{center}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{EccFccFcc}
-\instbitrange{SXLEN-1}{10} &
-\instbit{9} &
-\instbit{8} &
-\instbitrange{7}{6} &
-\instbit{5} &
-\instbit{4} &
-\instbitrange{3}{2} &
-\instbit{1} &
-\instbit{0} \\
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
 \hline
-\multicolumn{1}{|c|}{\wpri} &
-\multicolumn{1}{c|}{SEIP} &
-\multicolumn{1}{c|}{UEIP} &
-\multicolumn{1}{c|}{\wpri} &
-\multicolumn{1}{c|}{STIP} &
-\multicolumn{1}{c|}{UTIP} &
-\multicolumn{1}{c|}{\wpri} &
-\multicolumn{1}{c|}{SSIP} &
-\multicolumn{1}{c|}{USIP} \\
+\multicolumn{1}{|c|}{Interrupts (\warl)} \\
 \hline
-SXLEN-10 & 1 & 1 & 2 & 1 & 1 & 2 & 1 & 1 \\
+SXLEN \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
 \caption{Supervisor interrupt-pending register ({\tt sip}).}
 \label{sipreg}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}[h!]
+\begin{figure}[h!]
 {\footnotesize
 \begin{center}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{EccFccFcc}
-\instbitrange{SXLEN-1}{10} &
-\instbit{9} &
-\instbit{8} &
-\instbitrange{7}{6} &
-\instbit{5} &
-\instbit{4} &
-\instbitrange{3}{2} &
-\instbit{1} &
-\instbit{0} \\
+\begin{tabular}{@{}J}
+\instbitrange{SXLEN-1}{0} \\
 \hline
-\multicolumn{1}{|c|}{\wpri} &
-\multicolumn{1}{c|}{SEIE} &
-\multicolumn{1}{c|}{UEIE} &
-\multicolumn{1}{c|}{\wpri} &
-\multicolumn{1}{c|}{STIE} &
-\multicolumn{1}{c|}{UTIE} &
-\multicolumn{1}{c|}{\wpri} &
-\multicolumn{1}{c|}{SSIE} &
-\multicolumn{1}{c|}{USIE} \\
+\multicolumn{1}{|c|}{Interrupts (\warl)} \\
 \hline
-SXLEN-10 & 1 & 1 & 2 & 1 & 1 & 2 & 1 & 1 \\
+SXLEN \\
 \end{tabular}
 \end{center}
 }
 \vspace{-0.1in}
 \caption{Supervisor interrupt-enable register ({\tt sie}).}
 \label{siereg}
+\end{figure}
+
+An interrupt \textit{i} will be taken if bit \textit{i} is set in both
+{\tt sip} and {\tt sie}, and if supervisor-level interrupts are globally
+enabled.
+Supervisor-level interrupts are globally enabled if the hart's current
+privilege mode is less than S, or if the current privilege mode is S
+and the SIE bit in the {\tt sstatus} register is set.
+
+Each individual bit in register {\tt sip} may be writable or may be
+read-only.
+When bit~\textit{i} in {\tt sip} is writable, a pending interrupt
+\textit{i} can be cleared by writing 0 to this bit.
+If interrupt \textit{i} can become pending but bit~\textit{i} in
+{\tt sip} is read-only, the implementation must provide some other
+mechanism for clearing the pending interrupt (which may involve a call to
+the execution environment).
+
+A bit in {\tt sie} must be writable if the corresponding interrupt can
+ever become pending.
+Bits of {\tt sie} that are not writable must be hardwired to zero.
+
+The standard portions (bits 15:0) of registers {\tt sip} and {\tt sie}
+are formatted as shown in Figures \ref{sipreg-standard} and
+\ref{siereg-standard} respectively.
+
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ScFcFcc}
+\instbitrange{15}{10} &
+\instbit{9} &
+\instbitrange{8}{6} &
+\instbit{5} &
+\instbitrange{4}{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{0} &
+\multicolumn{1}{c|}{SEIP} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{STIP} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{SSIP} &
+\multicolumn{1}{c|}{0} \\
+\hline
+6 & 1 & 3 & 1 & 3 & 1 & 1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Standard portion (bits 15:0) of {\tt sip}.}
+\label{sipreg-standard}
 \end{figure*}
 
-Three types of interrupts are defined: software interrupts, timer interrupts,
-and external interrupts.  A supervisor-level software interrupt is triggered
-on the current hart by writing 1 to its supervisor software interrupt-pending
-(SSIP) bit in the {\tt sip} register.  A pending supervisor-level software
-interrupt can be cleared by writing 0 to the SSIP bit in {\tt sip}.
-Supervisor-level software interrupts are disabled when the SSIE bit in the
-{\tt sie} register is clear.
+\begin{figure*}[h!]
+{\footnotesize
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{ScFcFcc}
+\instbitrange{15}{10} &
+\instbit{9} &
+\instbitrange{8}{6} &
+\instbit{5} &
+\instbitrange{4}{2} &
+\instbit{1} &
+\instbit{0} \\
+\hline
+\multicolumn{1}{|c|}{0} &
+\multicolumn{1}{c|}{SEIE} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{STIE} &
+\multicolumn{1}{c|}{0} &
+\multicolumn{1}{c|}{SSIE} &
+\multicolumn{1}{c|}{0} \\
+\hline
+6 & 1 & 3 & 1 & 3 & 1 & 1 \\
+\end{tabular}
+\end{center}
+}
+\vspace{-0.1in}
+\caption{Standard portion (bits 15:0) of {\tt sie}.}
+\label{siereg-standard}
+\end{figure*}
 
+Bits {\tt sip}.SEIP and {\tt sie}.SEIE are the interrupt-pending and
+interrupt-enable bits for supervisor-level external interrupts.
+If implemented, SEIP is read-only in {\tt sip}, and is set and cleared by
+the execution environment, typically through a platform-specific
+interrupt controller.
+
+Bits {\tt sip}.STIP and {\tt sie}.STIE are the interrupt-pending and
+interrupt-enable bits for supervisor-level timer interrupts.
+If implemented, STIP is read-only in {\tt sip}, and is set and cleared by
+the execution environment.
+
+Bits {\tt sip}.SSIP and {\tt sie}.SSIE are the interrupt-pending and
+interrupt-enable bits for supervisor-level software interrupts.
+If implemented, SSIP is writable in {\tt sip}.
+A supervisor-level software interrupt is triggered
+on the current hart by writing 1 to SSIP,
+while a pending supervisor-level software
+interrupt can be cleared by writing 0 to SSIP.
+
+\begin{commentary}
 Interprocessor interrupts are sent to other harts by implementation-specific
 means, which will ultimately cause the SSIP bit to be set in the recipient
 hart's {\tt sip} register.
-
-A user-level software interrupt is triggered on the current hart by writing
-1 to its user software interrupt-pending (USIP) bit in the {\tt sip} register.
-A pending user-level software interrupt can be cleared by writing 0 to the
-USIP bit in {\tt sip}.  User-level software interrupts are disabled when the
-USIE bit in the {\tt sie} register is clear.  If user-level interrupts are not
-supported, USIP and USIE are hardwired to zero.
-
-All bits besides SSIP, USIP, and UEIP in the {\tt sip} register are read-only.
-
-A supervisor-level timer interrupt is pending if the STIP bit in the {\tt sip}
-register is set.  Supervisor-level timer interrupts are disabled when the STIE
-bit in the {\tt sie} register is clear.  The implementation must provide a
-mechanism to clear a pending timer interrupt.
-
-A user-level timer interrupt is pending if the UTIP bit in the {\tt sip}
-register is set.  User-level timer interrupts are disabled when the UTIE bit
-in the {\tt sie} register is clear.  If user-level interrupts are supported,
-the ABI should provide a facility for scheduling timer interrupts in terms of
-real-time counter values.  If user-level interrupts are not supported, UTIP
-and UTIE are hardwired to zero.
-
-A supervisor-level external interrupt is pending if the SEIP bit in the
-{\tt sip} register is set.  Supervisor-level external interrupts are disabled
-when the SEIE bit in the {\tt sie} register is clear.  The implementation
-should provide facilities to mask, unmask, and query the cause of external
-interrupts.
-
-The UEIP field in {\tt sip} contains a single read-write bit.  UEIP
-may be written by S-mode software to indicate to U-mode that an
-external interrupt is pending.  Additionally, the platform-level
-interrupt controller may generate user-level external interrupts.  The
-logical-OR of the software-writable bit and the signal from the
-external interrupt controller are used to generate external interrupts
-for user mode.  When the UEIP bit is read with a CSRRW, CSRRS, or
-CSRRC instruction, the value returned in the {\tt rd} destination
-register contains the logical-OR of the software-writable bit and the
-interrupt signal from the interrupt controller.  However, the value
-used in the read-modify-write sequence of a CSRRS or CSRRC instruction
-is only the software-writable UEIP bit, ignoring the interrupt value
-from the external interrupt controller.
-
-\begin{commentary}
-  Analogous to SEIP, the UEIP field behavior is designed to allow a
-  higher privilege layer to mimic external interrupts without losing
-  any real external interrupts.
 \end{commentary}
 
-User-level external interrupts are disabled when the UEIE bit in the {\tt sie}
-register is clear.  If the N extension for user-level interrupts is not
-implemented, UEIP and UEIE are hardwired to zero.
+Each standard interrupt type (SEI, STI, or SSI) may not be implemented,
+in which case the corresponding interrupt-pending and interrupt-enable
+bits are hardwired to zeros.
+All bits in {\tt sip} and {\tt sie} are \warl\ fields.
+The implemented interrupts may be found by writing one to every bit
+location in {\tt sie}, then reading back to see which bit positions hold
+a one.
 
 \begin{commentary}
 The {\tt sip} and {\tt sie} registers are subsets of the {\tt mip} and {\tt
-mie} registers.  Reading any field, or writing any writable field, of {\tt
-sip}/{\tt sie} effects a read or write of the homonymous field of {\tt
-mip}/{\tt mie}.
+mie} registers.  Reading any implemented field,
+or writing any writable field, of {\tt sip}/{\tt sie}
+effects a read or write of the homonymous field of {\tt mip}/{\tt mie}.
 
 Bits 3, 7, and 11 of {\tt sip} and {\tt sie} correspond to the machine-mode
 software, timer, and external interrupts, respectively.  Since most platforms
 will choose not to make these interrupts delegatable from M-mode to S-mode,
-they are marked \wpri\ in Figures~\ref{sipreg} and \ref{siereg}.
+they are shown as hardwired to 0 in Figures~\ref{sipreg-standard} and
+\ref{siereg-standard}.
 \end{commentary}
+
+Multiple simultaneous
+interrupts destined for supervisor mode are handled in the following
+decreasing priority order: SEI, SSI, STI.
+Synchronous exceptions are of lower priority than all interrupts.
 
 \subsection{Supervisor Timers and Performance Counters}
 
@@ -518,6 +563,13 @@ a hardwired value of zero, indicating reads to the corresponding counter will
 cause an exception when executing in U-mode.
 Hence, they are effectively \warl\ fields.
 
+\begin{commentary}
+The setting of a bit in {\tt mcounteren} does not affect whether the
+corresponding bit in {\tt scounteren} is writable.
+However, U-mode may only access a counter if the corresponding bits in {\tt
+scounteren} and {\tt mcounteren} are both set.
+\end{commentary}
+
 \subsection{Supervisor Scratch Register ({\tt sscratch})}
 
 The {\tt sscratch} register is an SXLEN-bit read/write register,
@@ -557,8 +609,8 @@ changing CSR {\tt misa}, for example), then, whenever IALIGN=32, bit
 masking occurs also for the implicit read by the SRET instruction.
 Though masked, {\tt sepc[1]} remains writable when IALIGN=32.
 
-{\tt sepc} is a \warl\ register that must be able to hold all valid physical
-and virtual addresses.  It need not be capable of holding all possible invalid
+{\tt sepc} is a \warl\ register that must be able to hold all valid
+virtual addresses.  It need not be capable of holding all possible invalid
 addresses.  Implementations may convert some invalid address patterns into
 other invalid addresses prior to writing them to {\tt sepc}.
 
@@ -585,6 +637,7 @@ SXLEN \\
 \end{figure}
 
 \subsection{Supervisor Cause Register ({\tt scause})}
+\label{sec:scause}
 
 The {\tt scause} register is an SXLEN-bit read-write register formatted as
 shown in Figure~\ref{scausereg}.  When a trap is taken into S-mode, {\tt
@@ -596,8 +649,9 @@ The Interrupt bit in the {\tt scause} register is set if the
 trap was caused by an interrupt. The Exception Code field
 contains a code identifying the last exception.  Table~\ref{scauses}
 lists the possible exception codes for the current supervisor ISAs.
-The Exception Code is a \wlrl\ field,
-so is only guaranteed to hold supported exception codes.
+The Exception Code is a \wlrl\ field.  It is required to hold
+the values 0--31 (i.e., bits 4--0 must be implemented), but otherwise
+it is only guaranteed to hold supported exception codes.
 
 \begin{figure*}[h!]
 {\footnotesize
@@ -625,16 +679,14 @@ so is only guaranteed to hold supported exception codes.
   \hline
   Interrupt & Exception Code  & Description \\
   \hline	 
-  1         & 0               & User software interrupt \\
+  1         & 0               & {\em Reserved} \\
   1         & 1               & Supervisor software interrupt \\
-  1         & 2--3            & {\em Reserved for future standard use} \\ \hline
-  1         & 4               & User timer interrupt \\
+  1         & 2--4            & {\em Reserved} \\
   1         & 5               & Supervisor timer interrupt \\
-  1         & 6--7            & {\em Reserved for future standard use} \\ \hline
-  1         & 8               & User external interrupt \\
+  1         & 6--8            & {\em Reserved} \\
   1         & 9               & Supervisor external interrupt \\
-  1         & 10--15          & {\em Reserved for future standard use} \\
-  1         & $\ge$16         & {\em Reserved for platform use} \\ \hline
+  1         & 10--15          & {\em Reserved} \\
+  1         & $\ge$16         & {\em Available for platform use} \\ \hline
   0         & 0               & Instruction address misaligned \\
   0         & 1               & Instruction access fault \\
   0         & 2               & Illegal instruction \\   
@@ -645,16 +697,16 @@ so is only guaranteed to hold supported exception codes.
   0         & 7               & Store/AMO access fault \\
   0         & 8               & Environment call from U-mode \\
   0         & 9               & Environment call from S-mode \\
-  0         & 10--11          & {\em Reserved for future standard use} \\
+  0         & 10--11          & {\em Reserved} \\
   0         & 12              & Instruction page fault \\
   0         & 13              & Load page fault \\
-  0         & 14              & {\em Reserved for future standard use} \\
+  0         & 14              & {\em Reserved} \\
   0         & 15              & Store/AMO page fault \\
-  0         & 16--23          & {\em Reserved for future standard use} \\
-  0         & 24--31          & {\em Reserved for custom use} \\
-  0         & 32--47          & {\em Reserved for future standard use} \\
-  0         & 48--63          & {\em Reserved for custom use} \\
-  0         & $\ge$64         & {\em Reserved for future standard use} \\
+  0         & 16--23          & {\em Reserved} \\
+  0         & 24--31          & {\em Available for custom use} \\
+  0         & 32--47          & {\em Reserved} \\
+  0         & 48--63          & {\em Available for custom use} \\
+  0         & $\ge$64         & {\em Reserved} \\
   \hline
 \end{tabular}
 \end{center}
@@ -674,8 +726,8 @@ which exceptions must set {\tt stval} informatively and which may
 unconditionally set it to zero.
 
 
-When a hardware breakpoint is triggered, or an instruction-fetch, load, or
-store address-misaligned, access, or page-fault exception occurs, {\tt stval}
+When a hardware breakpoint is triggered, or an instruction, load, or
+store address-misaligned, access-fault, or page-fault exception occurs, {\tt stval}
 is written with the faulting virtual address.  On an illegal instruction trap,
 {\tt stval} may be written with the first XLEN or ILEN bits of the faulting
 instruction as described below.  For other exceptions, {\tt stval} is set to
@@ -699,10 +751,10 @@ SXLEN \\
 \label{stvalreg}
 \end{figure}
 
-For misaligned loads and stores that cause access or page-fault
+For misaligned loads and stores that cause access-fault or page-fault
 exceptions, {\tt stval} will contain the virtual address of the
 portion of the access that caused the fault.  For
-instruction-fetch access or page-fault exceptions on systems
+instruction access-fault or page-fault exceptions on systems
 with variable-length instructions, {\tt stval} will contain the
 virtual address of the portion of the instruction that caused
 the fault while {\tt sepc} will point to the beginning of the
@@ -725,8 +777,8 @@ will contain the shortest of:
 The value loaded into {\tt stval} is right-justified and all unused upper
 bits are cleared to zero.
 
-{\tt stval} is a \warl\ register that must be able to hold all valid physical
-and virtual addresses and the value 0.  It need not be capable of holding all
+{\tt stval} is a \warl\ register that must be able to hold all valid
+virtual addresses and the value 0.  It need not be capable of holding all
 possible invalid addresses.  Implementations may convert some invalid address
 patterns into other invalid addresses prior to writing them to {\tt stval}.
 If the feature to return the faulting instruction bits is implemented, {\tt
@@ -770,6 +822,12 @@ register are described in Section~\ref{virt-control}.
 \begin{commentary}
 Storing a PPN in {\tt satp}, rather than a physical address, supports
 a physical address space larger than \wunits{4}{GiB} for RV32.
+
+The {\tt satp}.PPN field might not be capable of holding all physical page
+numbers.
+Some platform standards might place constraints on the values {\tt satp}.PPN
+may assume, e.g., by requiring that all physical page numbers corresponding to
+main memory be representable.
 \end{commentary}
 
 \begin{figure}[h!]
@@ -794,20 +852,30 @@ values Bare, Sv39, and Sv48.}
 \label{rv64satp}
 \end{figure}
 
-\begin{samepage-commentary}
+\begin{commentary}
 We store the ASID and the page table base address in the same CSR to allow the
 pair to be changed atomically on a context switch.  Swapping them
 non-atomically could pollute the old virtual address space with new
 translations, or vice-versa.  This approach also slightly reduces the cost of
 a context switch.
-\end{samepage-commentary}
+\end{commentary}
 
 Table~\ref{tab:satp-mode} shows the encodings of the MODE field for RV32 and
 RV64.  When MODE=Bare, supervisor virtual addresses are equal to
 supervisor physical addresses, and there is no additional memory protection
 beyond the physical memory protection scheme described in
-Section~\ref{sec:pmp}.  In this case, the remaining fields in {\tt satp}
-have no effect.
+Section~\ref{sec:pmp}.
+When MODE=Bare, patterns other than zero in the remaining fields of {\tt satp}
+(bits 30--0 for RV32, or bits 59--0 for RV64) are reserved for future use.
+To select MODE=Bare, software must write zero to these fields.
+
+\begin{commentary}
+Version 1.11 of this standard stated that the remaining fields in {\tt satp}
+had no effect when MODE=Bare.
+Making these fields reserved facilitates future definition of
+additional translation and protection modes, particularly in RV32, for which
+all patterns of the existing MODE field have already been allocated.
+\end{commentary}
 
 For RV32, the only other valid setting for MODE is Sv32, a paged
 virtual-memory scheme described in Section~\ref{sec:sv32}.
@@ -852,16 +920,13 @@ Value  & Name & Description \\
 \label{tab:satp-mode}
 \end{table}
 
-The number of supervisor physical address bits is implementation-defined; any
-unimplemented address bits are hardwired to zero in the {\tt satp} register.
-The number of ASID bits is also implementation-defined and may be zero.  The
+The number of ASID bits is \unspecified\ and may be zero.  The
 number of implemented ASID bits, termed {\mbox {\em ASIDLEN}}, may be
 determined by writing one to every bit position in the ASID field, then
 reading back the value in {\tt satp} to see which bit positions in the ASID
 field hold a one.  The least-significant bits of ASID are implemented first:
 that is, if ASIDLEN~$>$~0, ASID[ASIDLEN-1:0] is writable.  The maximal value
 of ASIDLEN, termed ASIDMAX, is 9 for Sv32 or 16 for Sv39 and Sv48.
-
 
 \begin{commentary}
 For many applications, the choice of page size has a substantial
@@ -1008,11 +1073,32 @@ translation caches.  To ensure the implicit reads observe writes to the same
 memory locations, an SFENCE.VMA instruction must be executed after the writes
 to flush the relevant cached translations.
 
+\begin{commentary}
+A consequence of this specification is that an implementation may use any
+translation for an address that was valid at any time since the most recent
+SFENCE.VMA that subsumes that address.
+In particular, if a leaf PTE is modified but a subsuming SFENCE.VMA is not
+executed, either the old translation or the new translation will be used, but
+the choice is unpredictable.
+The behavior is otherwise well-defined.
+
+In a conventional TLB design, it is possible for multiple entries to match a
+single address if, for example, a page is upgraded to a superpage without first
+clearing the original non-leaf PTE's valid bit and executing an SFENCE.VMA with
+{\em rs1}={\tt x0}.
+In this case, a similar remark applies: it is unpredictable whether the old
+non-leaf PTE or the new leaf PTE is used, but the behavior is otherwise well
+defined.
+\end{commentary}
+
 Implementations must only perform implicit reads of the translation
-data structures pointed to by the current contents of the satp
+data structures pointed to by the current contents of the {\tt satp}
 register, and must only raise exceptions for implicit accesses that are
 generated as a result of instruction execution, not those that are
 performed speculatively.
+
+Changes to the {\tt sstatus} fields SUM and MXR take effect immediately,
+without the need to execute an SFENCE.VMA instruction.
 
 \begin{commentary}
 The following common situations typically require executing an
@@ -1050,7 +1136,7 @@ should be set to the ASID for which the translation is being modified.
 changing an invalid PTE to a valid leaf, software may choose to execute
 the SFENCE.VMA lazily.  After modifying the PTE but before executing
 SFENCE.VMA, either the new or old permissions will be used.  In the latter
-case, a page fault exception might occur, at which point software should
+case, a page-fault exception might occur, at which point software should
 execute SFENCE.VMA in accordance with the previous bullet point.
 
 \end{itemize}
@@ -1325,12 +1411,16 @@ supports 4 MiB {\em megapages}.  A megapage must be virtually and
 physically aligned to a 4 MiB boundary; a page-fault exception is raised
 if the physical address is insufficiently aligned.
 
-For non-leaf PTEs, the D, A, and U bits are reserved for future use and
+For non-leaf PTEs, the D, A, and U bits are reserved for future standard use and
 must be cleared by software for forward compatibility.
 
 \begin{addformalcomment}
   The handling of PTEs in the Sail model is specified in \S\ref{ss:priv-sail-ptes}.
 \end{addformalcomment}
+
+For implementations with both page-based virtual memory and the ``A'' standard
+extension, the LR/SC reservation set must lie completely within a single
+base page (i.e., a naturally aligned \wunits{4}{KiB} region).
 
 \subsection{Virtual Address Translation Process}
 \label{sv32algorithm}
@@ -1340,22 +1430,29 @@ follows:
 
 \begin{enumerate}
 
+\item If XLEN equals VALEN, proceed.
+  (For Sv32, VALEN=32.)
+  Otherwise, check whether each bit of $va$[XLEN-1:VALEN] is equal to
+  $va$[VALEN-1].
+  If not, stop and raise a page-fault exception corresponding to the
+  original access type.
+
 \item Let $a$ be ${\tt satp}.ppn \times \textrm{PAGESIZE}$, and let $i=\textrm{LEVELS} - 1$. (For Sv32, PAGESIZE=$2^{12}$ and LEVELS=2.)
 
 \item Let $pte$ be the value of the PTE at address
   $a+va.vpn[i]\times \textrm{PTESIZE}$. (For Sv32, PTESIZE=4.)
   If accessing $pte$ violates a PMA or PMP check, raise an
-  access exception corresponding to the original access type.
+  access-fault exception corresponding to the original access type.
 
 \item If $pte.v=0$, or if $pte.r=0$ and $pte.w=1$, stop and raise a
   page-fault exception corresponding to the original access type.
 
 \item Otherwise, the PTE is valid.
-  If $pte.r=1$ or $pte.x=1$, go to step 5.
+  If $pte.r=1$ or $pte.x=1$, go to step 6.
   Otherwise, this PTE is a pointer to the next level of the page table.  Let
   $i=i-1$.  If $i<0$, stop and raise a page-fault exception
   corresponding to the original access type.  Otherwise, let
-  $a=pte.ppn \times \textrm{PAGESIZE}$ and go to step 2.
+  $a=pte.ppn \times \textrm{PAGESIZE}$ and go to step 3.
 
 \item A leaf PTE has been found.  Determine if the requested memory access is
   allowed by the $pte.r$, $pte.w$, $pte.x$, and $pte.u$ bits, given the
@@ -1371,9 +1468,9 @@ follows:
   \begin{itemize}
   \item Set $pte.a$ to 1 and, if the memory access is a store, also set
     $pte.d$ to 1.
-  \item If this access violates a PMA or PMP check, raise an access exception
+  \item If this access violates a PMA or PMP check, raise an access-fault exception
     corresponding to the original access type.
-  \item This update and the loading of $pte$ in step 2 must be atomic; in
+  \item This update and the loading of $pte$ in step 3 must be atomic; in
     particular, no intervening store to the PTE may be perceived to have
     occurred in-between.
   \end{itemize}
@@ -1521,7 +1618,7 @@ root page table is stored in the {\tt satp} register's PPN field.
 
 The PTE format for Sv39 is shown in Figure~\ref{sv39pte}.  Bits 9--0
 have the same meaning as for Sv32.  Bits 63--54 are reserved
-for future use and must be zeroed by software for forward compatibility.
+for future standard use and must be zeroed by software for forward compatibility.
 
 \begin{commentary}
 We reserved several PTE bits for a possible extension that improves
@@ -1542,7 +1639,8 @@ A page-fault exception is raised if the physical address is insufficiently
 aligned.
 
 The algorithm for virtual-to-physical address translation is the same as in
-Section~\ref{sv32algorithm}, except LEVELS equals 3 and PTESIZE equals 8.
+Section~\ref{sv32algorithm}, except VALEN equals 39, LEVELS equals 3, and
+PTESIZE equals 8.
 
 \begin{addformalcomment}
   The Sail specification of the Sv39 address translation scheme is in
@@ -1682,6 +1780,6 @@ physically aligned to a boundary equal to its size.
 A page-fault exception is raised if the physical address is insufficiently
 aligned.
 
-The algorithm for virtual-to-physical address translation is the same
-as in Section~\ref{sv32algorithm}, except LEVELS equals 4 and PTESIZE
-equals 8.
+The algorithm for virtual-to-physical address translation is the same as in
+Section~\ref{sv32algorithm}, except VALEN equals 39, LEVELS equals 4, and
+PTESIZE equals 8.

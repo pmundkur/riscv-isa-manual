@@ -22,7 +22,7 @@ Subsets of the base integer ISA might be useful for pedagogical
 purposes, but the base has been defined such that there should be
 little incentive to subset a real hardware implementation beyond
 omitting support for misaligned memory accesses and treating all
-SYSTEM and FENCE instructions as a single trap.
+SYSTEM instructions as a single trap.
 \end{commentary}
 
 \begin{commentary}
@@ -40,53 +40,6 @@ complement signed binary integers or unsigned binary integers.
 
 There is one additional unprivileged register: the program counter {\tt pc}
 holds the address of the current instruction.
-
-\begin{commentary}
-There is no dedicated stack pointer or subroutine return address link
-register in the Base Integer ISA; the instruction encoding allows any
-{\tt x} register to be used for these purposes. However, the standard
-software calling convention uses register {\tt x1} to hold the return
-address for a call, with register {\tt x5} available as an alternate
-link register.
-The standard calling convention uses register {\tt x2} as the stack
-pointer.
-
-Hardware might choose to accelerate function calls and returns that
-use {\tt x1} or {\tt x5}. See the descriptions of the JAL and JALR
-instructions.
-
-The optional compressed 16-bit instruction format is designed around
-the assumption that {\tt x1} is the return address register and {\tt
- x2} is the stack pointer. Software using other conventions will
-operate correctly but may have greater code size.
-
-The number of available architectural registers can have large impacts
-on code size, performance, and energy consumption.  Although 16
-registers would arguably be sufficient for an integer ISA running
-compiled code, it is impossible to encode a complete ISA with 16
-registers in 16-bit instructions using a 3-address format.  Although a
-2-address format would be possible, it would increase instruction
-count and lower efficiency.  We wanted to avoid intermediate
-instruction sizes (such as Xtensa's 24-bit instructions) to simplify
-base hardware implementations, and once a 32-bit instruction size was
-adopted, it was straightforward to support 32 integer registers.  A
-larger number of integer registers also helps performance on
-high-performance code, where there can be extensive use of loop
-unrolling, software pipelining, and cache tiling.
-
-For these reasons, we chose a conventional size of 32 integer
-registers for the base ISA.  Dynamic register usage tends to be
-dominated by a few frequently accessed registers, and regfile
-implementations can be optimized to reduce access energy for the
-frequently accessed registers~\cite{jtseng:sbbci}.  The optional
-compressed 16-bit instruction format mostly only accesses 8 registers
-and hence can provide a dense instruction encoding, while additional
-instruction-set extensions could support a much larger register space
-(either flat or hierarchical) if desired.
-
-For resource-constrained embedded applications, we have defined the
-RV32E subset, which only has 16 registers (Chapter~\ref{rv32e}).
-\end{commentary}
 
 \begin{figure}[H]
 {\footnotesize
@@ -137,7 +90,54 @@ RV32E subset, which only has 16 registers (Chapter~\ref{rv32e}).
 \label{gprs}
 \end{figure}
 
-\newpage
+\begin{commentary}
+There is no dedicated stack pointer or subroutine return address link
+register in the Base Integer ISA; the instruction encoding allows any
+{\tt x} register to be used for these purposes. However, the standard
+software calling convention uses register {\tt x1} to hold the return
+address for a call, with register {\tt x5} available as an alternate
+link register.
+The standard calling convention uses register {\tt x2} as the stack
+pointer.
+
+Hardware might choose to accelerate function calls and returns that
+use {\tt x1} or {\tt x5}. See the descriptions of the JAL and JALR
+instructions.
+
+The optional compressed 16-bit instruction format is designed around
+the assumption that {\tt x1} is the return address register and {\tt
+ x2} is the stack pointer. Software using other conventions will
+operate correctly but may have greater code size.
+\end{commentary}
+
+\begin{commentary}
+The number of available architectural registers can have large impacts
+on code size, performance, and energy consumption.  Although 16
+registers would arguably be sufficient for an integer ISA running
+compiled code, it is impossible to encode a complete ISA with 16
+registers in 16-bit instructions using a 3-address format.  Although a
+2-address format would be possible, it would increase instruction
+count and lower efficiency.  We wanted to avoid intermediate
+instruction sizes (such as Xtensa's 24-bit instructions) to simplify
+base hardware implementations, and once a 32-bit instruction size was
+adopted, it was straightforward to support 32 integer registers.  A
+larger number of integer registers also helps performance on
+high-performance code, where there can be extensive use of loop
+unrolling, software pipelining, and cache tiling.
+
+For these reasons, we chose a conventional size of 32 integer
+registers for the base ISA.  Dynamic register usage tends to be
+dominated by a few frequently accessed registers, and regfile
+implementations can be optimized to reduce access energy for the
+frequently accessed registers~\cite{jtseng:sbbci}.  The optional
+compressed 16-bit instruction format mostly only accesses 8 registers
+and hence can provide a dense instruction encoding, while additional
+instruction-set extensions could support a much larger register space
+(either flat or hierarchical) if desired.
+
+For resource-constrained embedded applications, we have defined the
+RV32E subset, which only has 16 registers (Chapter~\ref{rv32e}).
+\end{commentary}
 
 \section{Base Instruction Formats}
 
@@ -162,7 +162,14 @@ and to simplify hardware design for systems with IALIGN=32, where these
 are the only places where misalignment can occur.
 \end{commentary}
 
-\vspace{-0.2in}
+The behavior upon decoding a reserved instruction is \unspecified.
+\begin{commentary}
+Some platforms may require that opcodes reserved for standard use raise
+an illegal-instruction exception.
+Other platforms may permit reserved opcode space be used for non-conforming
+extensions.
+\end{commentary}
+
 \begin{figure}[h]
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -412,7 +419,7 @@ J-immediate \\
 
 \begin{commentary}
 Sign-extension is one of the most critical operations on immediates
-(particularly for XLEN>32), and in RISC-V the sign bit for all immediates
+(particularly for XLEN$>$32), and in RISC-V the sign bit for all immediates
 is always held in bit 31 of the instruction to allow sign-extension to
 proceed in parallel with instruction decoding.
 
@@ -571,16 +578,19 @@ U-immediate[31:12] & dest & AUIPC
 \end{center}
 
 LUI (load upper immediate) is used to build 32-bit constants and uses
-the U-type format.  LUI places the U-immediate value in the top 20
-bits of the destination register {\em rd}, filling in the lowest 12
+the U-type format.  LUI places the 32-bit U-immediate value into
+the destination register {\em rd}, filling in the lowest 12
 bits with zeros.
 
 AUIPC (add upper immediate to {\tt pc}) is used to build {\tt pc}-relative
 addresses and uses the U-type format.  AUIPC forms a 32-bit offset from the
-20-bit U-immediate, filling in the lowest 12 bits with zeros, adds this offset
+U-immediate, filling in the lowest 12 bits with zeros, adds this offset
 to the address of the AUIPC instruction, then places the result in register {\em rd}.
 
 \begin{commentary}
+The assembly syntax for {\tt lui} and {\tt auipc} does not represent the lower
+12 bits of the U-immediate, which are always zero.
+
 The AUIPC instruction supports two-instruction sequences to access
 arbitrary offsets from the PC for both control-flow transfers and data
 accesses.  The combination of an AUIPC and the 12-bit immediate in a
@@ -703,6 +713,10 @@ RV32I provides two types of control transfer instructions:
 unconditional jumps and conditional branches.  Control transfer
 instructions in RV32I do {\em not} have architecturally visible delay
 slots.
+
+If an instruction access exception or instruction page fault occurs on the
+target of a jump or taken branch, the exception is reported on the target
+instruction, not on the jump or branch instruction.
 
 \subsubsection*{Unconditional Jumps}
 
@@ -1043,12 +1057,33 @@ compressed instruction-set extension, C.
 RV32I is a load-store architecture, where only load and store
 instructions access memory and arithmetic instructions only operate on
 CPU registers.  RV32I provides a 32-bit address space that is
-byte-addressed and little-endian.  The EEI will
-define what portions of the address space are legal to access with
+byte-addressed.
+The EEI will define what portions of the address space are legal to access with
 which instructions (e.g., some addresses might be read only, or
 support word access only).  Loads with a destination of {\tt x0} must
 still raise any exceptions and cause any other side effects even
 though the load value is discarded.
+
+The EEI will define whether the memory system is little-endian or big-endian.
+In RISC-V, endianness is byte-address invariant.
+\begin{commentary}
+In a system for which endianness is byte-address invariant, the following
+property holds: if a byte is stored to memory at some address in some
+endianness, then a byte-sized load from that address in any endianness returns
+the stored value.
+
+In a little-endian configuration, multibyte stores write the least-significant
+register byte at the lowest memory byte address, followed by the other
+register bytes in ascending order of their significance.
+Loads similarly transfer the contents of the lesser memory byte addresses to
+the less-significant register bytes.
+
+In a big-endian configuration, multibyte stores write the most-significant
+register byte at the lowest memory byte address, followed by the other
+register bytes in descending order of their significance.
+Loads similarly transfer the contents of the greater memory byte addresses to
+the less-significant register bytes.
+\end{commentary}
 
 \vspace{-0.4in}
 \begin{center}
@@ -1096,7 +1131,7 @@ offset[11:5] & src & base & width & offset[4:0] & STORE \\
 
 Load and store instructions transfer a value between the registers and
 memory.  Loads are encoded in the I-type format and stores are
-S-type.  The effective byte address is obtained by adding register
+S-type.  The effective address is obtained by adding register
 {\em rs1} to the sign-extended 12-bit offset.  Loads copy a value
 from memory to register {\em rd}.  Stores copy the value in register
 {\em rs2} to memory.
@@ -1128,7 +1163,7 @@ An EEI may not guarantee misaligned loads and stores are handled
 invisibly.  In this case, loads and stores that are not naturally
 aligned may either complete execution successfully or raise an
 exception.  The exception raised can be either an address-misaligned
-exception or an access exception.  For a memory access that would
+exception or an access-fault exception.  For a memory access that would
 otherwise be able to complete except for the misalignment, an access
 exception can be raised instead of an address-misaligned exception if
 the misaligned access should not be emulated, e.g., if accesses to the
