@@ -1,11 +1,17 @@
 \chapter{``D'' Standard Extension for Double-Precision Floating-Point,
 Version 2.2}
+\label{sec:double-float}
 
 This chapter describes the standard double-precision floating-point
 instruction-set extension, which is named ``D'' and adds
 double-precision floating-point computational instructions compliant
 with the IEEE 754-2008 arithmetic standard.  The D extension depends on
 the base single-precision instruction subset F.
+
+\begin{formalcomment}
+  See the note on page~\pageref{ssec:sail:fp} on floating point in the
+  Sail specification.
+\end{formalcomment}
 
 \section{D Register State}
 
@@ -32,6 +38,16 @@ Valid NaN-boxed $n$-bit values therefore appear as negative quiet NaNs
   FLEN}.  Any operation that writes a narrower result to an {\tt f}
 register must write all 1s to the uppermost FLEN$-n$ bits to yield a
 legal NaN-boxed value.
+
+\begin{formalcomment}
+  This handling of NaN-boxing is performed in the Sail model by
+  \sailfname{nan\_box} and \sailfname{nan\_unbox}.
+\end{formalcomment}
+
+\begin{formalspec}
+  \sailfnnanBox
+  \sailfnnanUnbox
+\end{formalspec}
 
 \begin{commentary}
 Software might not know the current type of data stored in a
@@ -151,6 +167,11 @@ is naturally aligned and XLEN$\geq$64.
 FLD and FSD do not modify the bits being transferred; in particular, the
 payloads of non-canonical NaNs are preserved.
 
+\begin{formalcomment}
+  The formal definitions of FLD and FSD are handled by the version for
+  the F extension given on page~\pageref{lbl:fldst32}.
+\end{formalcomment}
+
 \section{Double-Precision Floating-Point Computational Instructions}
 
 The double-precision floating-point computational instructions are
@@ -184,6 +205,13 @@ FSQRT     & D & 0    & src  & RM  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
+\begin{formalspec}
+  \sailfclFUnderscoreBINUnderscoreRMUnderscoreTYPEUnderscoreDexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreDCexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreDDexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDexecute
+\end{formalspec}
+
 \vspace{-0.2in}
 \begin{center}
 \begin{tabular}{R@{}F@{}R@{}R@{}F@{}R@{}O}
@@ -208,6 +236,10 @@ FSQRT     & D & 0    & src  & RM  & dest & OP-FP  \\
 src3 & D & src2 & src1 & RM  & dest & F[N]MADD/F[N]MSUB  \\
 \end{tabular}
 \end{center}
+
+\begin{formalspec}
+  \sailfclFUnderscoreMADDUnderscoreTYPEUnderscoreDexecute
+\end{formalspec}
 
 \section{Double-Precision Floating-Point Conversion and Move Instructions}
 
@@ -257,6 +289,17 @@ FCVT.D.{\em int} & D & W[U]/L[U] & src & RM  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDAexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDBexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDCexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDDexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDGexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDHexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDIexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDJexecute
+\end{formalspec}
+
 The double-precision to single-precision and single-precision to
 double-precision conversion instructions, FCVT.S.D and FCVT.D.S, are
 encoded in the OP-FP major opcode space and both the source and
@@ -291,6 +334,11 @@ FCVT.D.S & D & S & src & RM  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDEexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreDFexecute
+\end{formalspec}
+
 Floating-point to floating-point sign-injection instructions, FSGNJ.D,
 FSGNJN.D, and FSGNJX.D are defined analogously to the single-precision
 sign-injection instruction.
@@ -319,6 +367,12 @@ sign-injection instruction.
 FSGNJ & D & src2 & src1 & J[N]/JX & dest & OP-FP  \\
 \end{tabular}
 \end{center}
+
+\begin{formalspec}
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreDexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreDAexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreDBexecute
+\end{formalspec}
 
 For XLEN$\geq$64 only, instructions are provided to move bit patterns
 between the floating-point and integer registers.  FMV.X.D moves the
@@ -378,6 +432,11 @@ FMV.D.X & D & 0    & src  & 000  & dest & OP-FP  \\
   wide address-space and pointers can be used to avoid growth of
   static data and dynamic memory traffic.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreTYPEUnderscoreDAexecute
+  \sailfclFUnderscoreUNUnderscoreTYPEUnderscoreDBexecute
+\end{formalspec}
 
 \section{Double-Precision Floating-Point Compare Instructions}
 
@@ -440,3 +499,7 @@ double-precision operands.
 FCLASS & D & 0 & src & 001 & dest & OP-FP  \\
 \end{tabular}
 \end{center}
+
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreTYPEUnderscoreDexecute
+\end{formalspec}
