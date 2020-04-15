@@ -225,6 +225,15 @@ rounding modes.
 \label{rm}
 \end{table}
 
+\begin{formalcomment}
+  In the Sail model, the selection of the rounding mode for an
+  instruction is performed by \sailfname{select\_instr\_or\_fcsr\_rm}.
+\end{formalcomment}
+
+\begin{formalspec}
+  \sailfnselectInstrOrFcsrRm
+\end{formalspec}
+
 The accrued exception flags indicate the exception conditions that
 have arisen on any floating-point arithmetic instruction since the
 field was last reset by software, as shown in Table~\ref{bitdef}.
@@ -270,6 +279,19 @@ contents of the floating-point accrued exception flags, but ultimately chose
 to omit these instructions to keep the ISA simple.
 \end{commentary}
 
+\begin{formalcomment}
+  The handling of exception flag accrual in the Sail model is
+  performed by \sailfname{accrue\_fflags}.  The specification of some
+  instructions use \sailfname{write\_fflags}, which can be taken to be
+  equivalent to \sailfname{accrue\_fflags}; the difference between
+  them is an artifact of model's interface to the SoftFloat library.
+\end{formalcomment}
+
+\begin{formalspec}
+  \sailfndirtyFdContext
+  \sailfnaccrueFflags
+\end{formalspec}
+
 \section{NaN Generation and Propagation}
 
 Except when otherwise stated, if the result of a floating-point operation is
@@ -310,6 +332,23 @@ In the parlance of the IEEE standard, tininess is detected after rounding.
 \begin{commentary}
 Detecting tininess after rounding results in fewer spurious underflow signals.
 \end{commentary}
+
+\section*{Floating Point in the Sail Specification}
+\label{ssec:sail:fp}
+
+The Sail model captures some but not all aspects of the IEEE 754.  The
+model specifies for every instruction its encoding and decoding,
+interactions with the register file, detection and handling of special
+values, and any applicable selection of rounding mode and updates to
+the {\tt fcsr} register.  It does not however capture floating-point
+arithmetic.  The Sail C emulator performs these computations using the
+SoftFloat C library.
+
+The Sail model uses the same instruction specifications for
+instructions that are common to both the ``F'' and ``D'' extensions.
+As a result, functions like \sailfname{nan\_box} and
+\sailfname{nan\_unbox} that appear in this chapter are defined in
+Chapter~\ref{sec:double-float} on page~\pageref{nanboxing}.
 
 \section{Single-Precision Load and Store Instructions}
 
@@ -369,6 +408,20 @@ is naturally aligned.
 
 FLW and FSW do not modify the bits being transferred; in particular, the
 payloads of non-canonical NaNs are preserved.
+
+\begin{formalspec}
+  \label{lbl:fldst32}
+  \sailfnprocessFloadThreeTwo
+  \sailfnprocessFloadSixFour
+  \sailfclLOADUnderscoreFPexecute
+  \sailfnprocessFstore
+  \sailfclSTOREUnderscoreFPexecute
+\end{formalspec}
+\begin{formalcomment}
+  See the note on page~\pageref{lbl:ldst32:comment} for an explanation
+  of the functions used in specifying instructions that interact with
+  memory.
+\end{formalcomment}
 
 \section{Single-Precision Floating-Point Computational Instructions}
 \label{sec:single-float-compute}
@@ -455,6 +508,13 @@ FMIN-MAX  & S & src2 & src1 & MIN/MAX & dest & OP-FP  \\
 \end{tabular}
 \end{center}
 
+\begin{formalspec}
+  \sailfclFUnderscoreBINUnderscoreRMUnderscoreTYPEUnderscoreSexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSCexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSDexecute
+\end{formalspec}
+
 Floating-point fused multiply-add instructions require a new standard
 instruction format.  R4-type instructions specify three source
 registers ({\em rs1}, {\em rs2}, and {\em rs3}) and a destination
@@ -535,6 +595,10 @@ The IEEE 754-2008 standard permits, but does not require, raising the
 invalid exception for the operation \mbox{$\infty\times 0\ +$ qNaN}.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclFUnderscoreMADDUnderscoreTYPEUnderscoreSexecute
+\end{formalspec}
+
 \section{Single-Precision Floating-Point Conversion and Move \mbox{Instructions}}
 
 Floating-point-to-integer and integer-to-floating-point conversion
@@ -582,6 +646,10 @@ instructions round according to the {\em rm} field.  A floating-point register
 can be initialized to floating-point positive zero using FCVT.S.W {\em rd},
 {\tt x0}, which will never set any exception flags.
 
+All floating-point conversion instructions raise the Inexact exception if the
+result differs from its operand value, yet is representable in the destination
+format.
+
 \vspace{-0.2in}
 \begin{center}
 \begin{tabular}{R@{}F@{}R@{}R@{}F@{}R@{}O}
@@ -607,6 +675,17 @@ FCVT.{\em int}.{\em fmt} & S & W[U]/L[U] & src & RM  & dest & OP-FP  \\
 FCVT.{\em fmt}.{\em int} & S & W[U]/L[U] & src & RM  & dest & OP-FP  \\
 \end{tabular}
 \end{center}
+
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSAexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSBexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSCexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSDexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSEexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSFexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSGexecute
+  \sailfclFUnderscoreUNUnderscoreRMUnderscoreTYPEUnderscoreSHexecute
+\end{formalspec}
 
 Floating-point to floating-point sign-injection instructions, FSGNJ.S,
 FSGNJN.S, and FSGNJX.S, produce a result that takes all bits except
@@ -660,6 +739,12 @@ Even in this case, a microarchitecture can simply detect when both
 source registers are the same for FSGNJ instructions and only read a
 single copy.
 \end{commentary}
+
+\begin{formalspec}
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSAexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSBexecute
+\end{formalspec}
 
 Instructions are provided to move bit patterns between the
 floating-point and integer registers.  FMV.X.W moves the
@@ -725,6 +810,11 @@ registers are required, reducing instruction count and critical paths
 for common mixed-format code sequences.
 \end{commentary}
 
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreTYPEUnderscoreSAexecute
+  \sailfclFUnderscoreUNUnderscoreTYPEUnderscoreSBexecute
+\end{formalspec}
+
 \section{Single-Precision Floating-Point Compare Instructions}
 
 Floating-point compare instructions (FEQ.S, FLT.S, FLE.S) perform the
@@ -764,6 +854,19 @@ the result is 0 if either operand is NaN.
 FCMP & S & src2 & src1 & EQ/LT/LE & dest & OP-FP  \\
 \end{tabular}
 \end{center}
+
+\begin{commentary}
+The F extension provides a $\leq$ comparison, whereas the base ISA provides
+a $\geq$ branch comparison.  Because $\leq$ can be synthesized from $\geq$ and
+vice-versa, there is no performance implication to this inconsistency, but it
+is nevertheless an unfortunate incongruity in the ISA.
+\end{commentary}
+
+\begin{formalspec}
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSEexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSFexecute
+  \sailfclFUnderscoreBINUnderscoreTYPEUnderscoreSGexecute
+\end{formalspec}
 
 \section{Single-Precision Floating-Point Classify Instruction}
 
@@ -825,3 +928,7 @@ Meaning \\
 \caption{Format of result of FCLASS instruction.}
 \label{tab:fclass}
 \end{table}
+
+\begin{formalspec}
+  \sailfclFUnderscoreUNUnderscoreTYPEUnderscoreSexecute
+\end{formalspec}

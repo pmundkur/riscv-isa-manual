@@ -80,7 +80,6 @@ registers are used by \sailfname{get\_trap\_vector} and
 traps.
 
 \begin{formalspec}
-  \sailfntvecAddr
   \sailfnprepareTrapVector
   \sailfngetXretTarget
   \sailfnsetXretTarget
@@ -91,16 +90,16 @@ traps.
 
 \sailfname{exception\_delegatee} computes the delegated privilege
 level at which an exception should be handled given the current
-privilege level.  \sailfname{handle\_exception} processes traps and
+privilege level.  \sailfname{exception\_handler} processes traps and
 privilege transition instructions, and delegates trap handling to
-\sailfname{handle\_trap}.  \sailfname{handle\_interrupt},
+\sailfname{trap\_handler}.  \sailfname{handle\_interrupt},
 \sailfname{handle\_mem\_exception} and \sailfname{handle\_illegal} are
 convenient single-purpose helper wrapper functions.
 
 \begin{formalspec}
   \sailfnexceptionDelegatee
-  \sailfnhandleTrap
-  \sailfnhandleException
+  \sailfntrapHandler
+  \sailfnexceptionHandler
   \sailfnhandleMemException
   \sailfnhandleInterrupt
   \sailfnhandleIllegal
