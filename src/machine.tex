@@ -95,8 +95,8 @@ through to bit 25 which encodes ``Z'').  The ``I'' bit will be set for
 RV32I, RV64I, RV128I base ISAs, and the ``E'' bit will be set for
 RV32E.  The Extensions field is a \warl\ field that can contain writable bits
 where the implementation allows the supported ISA to be modified.  At
-reset, the Extensions field should contain the maximal set of supported
-extensions, and I should be selected over E if both are available.
+reset, the Extensions field shall contain the maximal set of supported
+extensions, and I shall be selected over E if both are available.
 
 The RV128I base ISA is not yet frozen, and while much of the remainder of this
 specification is expected to apply to RV128, this version of the document
@@ -1640,9 +1640,10 @@ mechanism for determining the timebase of {\tt mtime}.  The {\tt
 
 The {\tt mtime} register has a 64-bit precision on all RV32 and RV64
 systems.  Platforms provide a 64-bit memory-mapped machine-mode
-timer compare register ({\tt mtimecmp}), which causes a timer
-interrupt to be posted when the {\tt mtime} register contains a value
-greater than or equal to the value in the {\tt mtimecmp} register.
+timer compare register ({\tt mtimecmp}).
+A timer interrupt becomes pending whenever {\tt mtime} contains
+a value greater than or equal to {\tt mtimecmp}, treating the values
+as unsigned integers.
 The interrupt remains posted until {\tt mtimecmp} becomes greater than
 {\tt mtime} (typically as a result of writing {\tt mtimecmp}).
 The interrupt will only be taken if interrupts
@@ -1740,6 +1741,9 @@ to the intermediate value of the comparand:
 \label{mtimecmph}
 \end{figure}
 
+For RV64, naturally aligned 64-bit memory accesses to the {\tt mtime} and {\tt
+mtimecmp} registers are atomic.
+
 \subsection{Hardware Performance Monitor}
 
 M-mode includes a basic hardware performance-monitoring facility.  The
@@ -1749,7 +1753,7 @@ The {\tt minstret} CSR counts the number of instructions the hart has
 retired.  The {\tt mcycle} and {\tt minstret} registers have 64-bit
 precision on all RV32 and RV64 systems.
 
-The counter registers have an arbitrary value after system reset, and
+The counter registers have an arbitrary value after the hart is reset, and
 can be written with a given value. Any CSR write takes effect after
 the writing instruction has otherwise completed.
 The {\tt mcycle} CSR may be shared between harts on the same core, in which
@@ -2868,8 +2872,10 @@ instruction and atomic-instruction ordering bits.
 
 Accesses by one hart to main memory regions are observable not only by
 other harts but also by other devices with the capability to initiate
-requests in the main memory system (e.g., DMA engines).  Main memory
-regions always have either the RVWMO or RVTSO memory model.
+requests in the main memory system (e.g., DMA engines).
+Coherent main memory regions always have either the RVWMO or RVTSO memory
+model.
+Incoherent main memory regions have an implementation-defined memory model.
 
 Accesses by one hart to an I/O region are observable not only by other harts
 and bus mastering devices but also by targeted slave I/O devices, and I/O
@@ -3052,8 +3058,8 @@ PMP checks are also applied to page-table
 accesses for virtual-address translation, for which the effective
 privilege mode is S.  Optionally, PMP checks may additionally apply
 to M-mode accesses, in which case the PMP registers themselves are
-locked, so that even M-mode software cannot change them without
-a system reset.  In effect, PMP can {\em grant} permissions to S and U
+locked, so that even M-mode software cannot change them until the hart is
+reset.  In effect, PMP can {\em grant} permissions to S and U
 modes, which by default have none, and can {\em revoke} permissions
 from M-mode, which by default has full permissions.
 
@@ -3063,17 +3069,22 @@ PMP violations are always trapped precisely at the processor.
 
 PMP entries are described by an 8-bit configuration register and one MXLEN-bit
 address register.  Some PMP settings additionally use the address register
-associated with the preceding PMP entry.  Up to 16 PMP entries are supported.
-If any PMP entries are implemented, then all PMP CSRs must be implemented,
-but all PMP CSR fields are \warl\ and may be hardwired to zero.  PMP CSRs
-are only accessible to M-mode.
+associated with the preceding PMP entry.
+Up to 64 PMP entries are supported.
+Implementations may implement zero, 16, or 64 PMP CSRs.
+All PMP CSR fields are \warl\ and may be hardwired to zero.
+PMP CSRs are only accessible to M-mode.
 
 The PMP configuration registers are densely packed into CSRs to minimize
-context-switch time.  For RV32, four CSRs, {\tt pmpcfg0}--{\tt pmpcfg3}, hold
-the configurations {\tt pmp0cfg}--{\tt pmp15cfg} for the 16 PMP entries, as
-shown in Figure~\ref{pmpcfg-rv32}.  For RV64, {\tt pmpcfg0} and {\tt pmpcfg2}
-hold the configurations for the 16 PMP entries, as shown in
-Figure~\ref{pmpcfg-rv64}, whereas {\tt pmpcfg1} and {\tt pmpcfg3} are illegal.
+context-switch time.
+For RV32, sixteen CSRs, {\tt pmpcfg0}--{\tt pmpcfg15}, hold the configurations
+{\tt pmp0cfg}--{\tt pmp63cfg} for the 64 PMP entries, as shown in
+Figure~\ref{pmpcfg-rv32}.
+For RV64, eight even-numbered CSRs,
+{\tt pmpcfg0}, {\tt pmpcfg2}, \ldots, {\tt pmpcfg14}, hold the configurations
+for the 64 PMP entries, as shown in Figure~\ref{pmpcfg-rv64}.
+For RV64, the odd-numbered configuration registers,
+{\tt pmpcfg1}, {\tt pmpcfg3}, \ldots, {\tt pmpcfg15}, are illegal.
 
 \begin{commentary}
 RV64 systems use {\tt pmpcfg2}, rather than {\tt pmpcfg1}, to hold
@@ -3110,28 +3121,19 @@ entries 8--11 appear in {\tt pmpcfg2}[31:0] for both RV32 and RV64.
 \tt pmpcfg1 \\
 \cline{1-4}
 8 & 8 & 8 & 8 & \\
+~ \\
+\multicolumn{4}{c}{\Huge\vdots} & \ \\
+~ \\
 \instbitrange{31}{24} &
 \instbitrange{23}{16} &
 \instbitrange{15}{8} &
 \instbitrange{7}{0} & \\
 \cline{1-4}
-\multicolumn{1}{|c|}{pmp11cfg} &
-\multicolumn{1}{c|}{pmp10cfg} &
-\multicolumn{1}{c|}{pmp9cfg} &
-\multicolumn{1}{c|}{pmp8cfg} &
-\tt pmpcfg2 \\
-\cline{1-4}
-8 & 8 & 8 & 8 & \\
-\instbitrange{31}{24} &
-\instbitrange{23}{16} &
-\instbitrange{15}{8} &
-\instbitrange{7}{0} & \\
-\cline{1-4}
-\multicolumn{1}{|c|}{pmp15cfg} &
-\multicolumn{1}{c|}{pmp14cfg} &
-\multicolumn{1}{c|}{pmp13cfg} &
-\multicolumn{1}{c|}{pmp12cfg} &
-\tt pmpcfg3 \\
+\multicolumn{1}{|c|}{pmp63cfg} &
+\multicolumn{1}{c|}{pmp62cfg} &
+\multicolumn{1}{c|}{pmp61cfg} &
+\multicolumn{1}{c|}{pmp60cfg} &
+\tt pmpcfg15 \\
 \cline{1-4}
 8 & 8 & 8 & 8 & \\
 \end{tabular}
@@ -3186,6 +3188,29 @@ entries 8--11 appear in {\tt pmpcfg2}[31:0] for both RV32 and RV64.
 \tt pmpcfg2 \\
 \cline{1-8}
 8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & \\
+~ \\
+\multicolumn{8}{c}{\Huge\vdots} & \ \\
+~ \\
+\instbitrange{63}{56} &
+\instbitrange{55}{48} &
+\instbitrange{47}{40} &
+\instbitrange{39}{32} &
+\instbitrange{31}{24} &
+\instbitrange{23}{16} &
+\instbitrange{15}{8} &
+\instbitrange{7}{0} & \\
+\cline{1-8}
+\multicolumn{1}{|c|}{pmp63cfg} &
+\multicolumn{1}{c|}{pmp62cfg} &
+\multicolumn{1}{c|}{pmp61cfg} &
+\multicolumn{1}{c|}{pmp60cfg} &
+\multicolumn{1}{c|}{pmp59cfg} &
+\multicolumn{1}{c|}{pmp58cfg} &
+\multicolumn{1}{c|}{pmp57cfg} &
+\multicolumn{1}{c|}{pmp56cfg} &
+\tt pmpcfg14 \\
+\cline{1-8}
+8 & 8 & 8 & 8 & 8 & 8 & 8 & 8 & \\
 \end{tabular}
 \end{center}
 }
@@ -3194,7 +3219,7 @@ entries 8--11 appear in {\tt pmpcfg2}[31:0] for both RV32 and RV64.
 \label{pmpcfg-rv64}
 \end{figure}
 
-The PMP address registers are CSRs named {\tt pmpaddr0}--{\tt pmpaddr15}.
+The PMP address registers are CSRs named {\tt pmpaddr0}--{\tt pmpaddr63}.
 Each PMP address register encodes bits 33--2 of a 34-bit physical address for
 RV32, as shown in Figure~\ref{pmpaddr-rv32}.  For RV64, each PMP address
 register encodes bits 55--2 of a 56-bit physical address, as shown in
@@ -3382,7 +3407,7 @@ zero-extended from MXLEN to XLEN bits for the purposes of address matching.
 
 The L bit indicates that the PMP entry is locked, i.e., writes to the
 configuration register and associated address registers are ignored.  Locked
-PMP entries may only be unlocked with a system reset.  If PMP entry $i$ is
+PMP entries remain locked until the hart is reset.  If PMP entry $i$ is
 locked, writes to {\tt pmp}$i${\tt cfg} and {\tt pmpaddr}$i$ are ignored.
 Additionally, if {\tt pmp}$i${\tt cfg}.A is set to TOR, writes to {\tt
 pmpaddr}$i$-1 are ignored.

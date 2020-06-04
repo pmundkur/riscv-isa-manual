@@ -868,6 +868,9 @@ Section~\ref{sec:pmp}.
 When MODE=Bare, patterns other than zero in the remaining fields of {\tt satp}
 (bits 30--0 for RV32, or bits 59--0 for RV64) are reserved for future use.
 To select MODE=Bare, software must write zero to these fields.
+Attempting to select MODE=Bare with a nonzero pattern in the remaining fields
+has an \unspecified\ effect on the value that the remaining fields assume
+and an \unspecified\ effect on address translation and protection behavior.
 
 \begin{commentary}
 Version 1.11 of this standard stated that the remaining fields in {\tt satp}
@@ -1041,10 +1044,10 @@ SFENCE.VMA depends on {\em rs1} and {\em rs2} as follows:
       Accesses to {\em global} mappings (see Section~\ref{sec:translation})
       are not ordered.
 \item If {\em rs1}$\neq${\tt x0} and {\em rs2}={\tt x0}, the fence orders
-      only reads and writes made to the leaf page table entry corresponding
+      only reads and writes made to leaf page table entries corresponding
       to the virtual address in {\em rs1}, for all address spaces.
 \item If {\em rs1}$\neq${\tt x0} and {\em rs2}$\neq${\tt x0}, the fence
-      orders only reads and writes made to the leaf page table entry
+      orders only reads and writes made to leaf page table entries
       corresponding to the virtual address in {\em rs1}, for the address
       space identified by integer register {\em rs2}.
       Accesses to global mappings are not ordered.
