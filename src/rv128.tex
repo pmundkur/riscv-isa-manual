@@ -37,6 +37,10 @@ We have not frozen the RV128 spec at this time, as there might be need
 to evolve the design based on actual usage of 128-bit address spaces.
 \end{commentary}
 
+\begin{formalcomment}
+  The Sail formal model does not support the RV128 specification yet.
+\end{formalcomment}
+
 RV128I builds upon RV64I in the same way RV64I builds upon RV32I, with
 integer registers extended to 128 bits (i.e., XLEN=128).  Most integer
 computational instructions are unchanged as they are defined to

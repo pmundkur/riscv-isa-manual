@@ -429,9 +429,18 @@ computes its effective address by adding the {\em zero}-extended offset,
 scaled by 8, to the stack pointer, {\tt x2}.  It expands to {\tt fld rd,
 offset(x2)}.
 
+\begin{formalcomment}
+  The Sail formal model does not support the RV128 specification yet,
+  and the RV128C instructions are not present in this and subsequent
+  Sail listings.
+\end{formalcomment}
+
+\mbox{}
 \begin{formalspec}
   \sailfclCUnderscoreLWSPexecute
   \sailfclCUnderscoreLDSPexecute
+  \sailfclCUnderscoreFLWSPexecute
+  \sailfclCUnderscoreFLDSPexecute
 \end{formalspec}
 
 \begin{center}
@@ -527,6 +536,8 @@ attain the greatest code size reduction.
 \begin{formalspec}
   \sailfclCUnderscoreSWSPexecute
   \sailfclCUnderscoreSDSPexecute
+  \sailfclCUnderscoreFSWSPexecute
+  \sailfclCUnderscoreFSDSPexecute
 \end{formalspec}
 
 \subsection*{Register-Based Loads and Stores}
@@ -590,6 +601,8 @@ by 8, to the base address in register {\em \rsoneprime}.  It expands to {\tt fld
 \begin{formalspec}
   \sailfclCUnderscoreLWexecute
   \sailfclCUnderscoreLDexecute
+  \sailfclCUnderscoreFLWexecute
+  \sailfclCUnderscoreFLDexecute
 \end{formalspec}
 
 \begin{center}
@@ -651,6 +664,8 @@ by 8, to the base address in register {\em \rsoneprime}.  It expands to {\tt fsd
 \begin{formalspec}
   \sailfclCUnderscoreSWexecute
   \sailfclCUnderscoreSDexecute
+  \sailfclCUnderscoreFSWexecute
+  \sailfclCUnderscoreFSDexecute
 \end{formalspec}
 
 \section{Control Transfer Instructions}
