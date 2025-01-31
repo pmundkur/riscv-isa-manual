@@ -77,10 +77,20 @@ ifdef UNRELIABLE_BUT_FASTER_INCREMENTAL_BUILDS
 WORKDIR_SETUP = mkdir -p $@.workdir && ln -sfn ../../src ../../docs-resources $@.workdir/
 WORKDIR_TEARDOWN = mv $@.workdir/$@ $@
 else
+
+# Downloaded Sail Asciidoc JSON, which includes all of
+# the Sail code and can be embedded. We don't vendor it
+# into this repo since it's quite large (~3MB).
+# The URL is stored in a file so if the URL changes
+# Make will know to download it again.
+SAIL_ASCIIDOC_JSON_URL_FILE = sail.json.url
+SAIL_ASCIIDOC_JSON = $(BUILD_DIR)/sail.json
+
 WORKDIR_SETUP = \
     rm -rf $@.workdir && \
     mkdir -p $@.workdir && \
-    ln -sfn ../../src ../../docs-resources $@.workdir/
+    ln -sfn ../../src ../../docs-resources $@.workdir/ && \
+    cp $(SAIL_ASCIIDOC_JSON) $@.workdir/
 
 WORKDIR_TEARDOWN = \
     mv $@.workdir/$@ $@ && \
@@ -133,7 +143,7 @@ build-pdf: $(DOCS_PDF)
 build-html: $(DOCS_HTML)
 build-epub: $(DOCS_EPUB)
 
-ALL_SRCS := $(shell git ls-files $(SRC_DIR))
+ALL_SRCS := $(shell git ls-files $(SRC_DIR)) $(SAIL_ASCIIDOC_JSON)
 
 $(BUILD_DIR)/%.pdf: $(SRC_DIR)/%.adoc $(ALL_SRCS)
 	$(WORKDIR_SETUP)
@@ -149,6 +159,12 @@ $(BUILD_DIR)/%.epub: $(SRC_DIR)/%.adoc $(ALL_SRCS)
 	$(WORKDIR_SETUP)
 	$(DOCKER_CMD) $(DOCKER_QUOTE) $(ASCIIDOCTOR_EPUB) $(OPTIONS) $(REQUIRES) $< $(DOCKER_QUOTE)
 	$(WORKDIR_TEARDOWN)
+
+# Download the Sail JSON.
+$(SAIL_ASCIIDOC_JSON): $(SAIL_ASCIIDOC_JSON_URL_FILE)
+	@echo "Downloading Sail model code..."
+	mkdir -p $(BUILD_DIR)
+	@curl --location '$(shell cat $<)' --output $@
 
 build: submodule-check
 	@echo "Checking if Docker is available..."
