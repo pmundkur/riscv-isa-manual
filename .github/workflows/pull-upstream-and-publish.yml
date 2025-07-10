@@ -1,0 +1,93 @@
+---
+name: Merge upstream and publish to Github pages
+
+# This merges upstream `main` branch into the `sail` branch,
+# builds the ISA manual and publishes it to Gitlab pages.
+
+on:
+  schedule:
+    - cron: 42 1 * * *   # 01:42 every day.
+  workflow_dispatch:
+
+jobs:
+  # Merge upstream `master`.
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Full depth needed otherwise Git refuses to merge unrelated histories.
+          # We probably could override it but this seems safer.
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/riscv/riscv-isa-manual.git
+          git fetch upstream
+
+      - name: Merge upstream/main into current branch
+        run: |
+          git merge --no-edit upstream/main
+        # If merge fails, workflow will stop here due to non-zero exit code
+
+      - name: Push merged branch back to fork
+        run: |
+          git push origin HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Build the manual.
+  build:
+    runs-on: ubuntu-latest
+
+    needs: update
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build HTML
+        run: |
+          make build-html
+
+      # Create directory structure pages sites for privileged and unprivileged specs.
+      - name: Make GitHub pages directory
+        run: |
+          cp -r pages dist
+          cp build/riscv-unprivileged.html dist/riscv-unprivileged.html
+          cp build/riscv-privileged.html dist/riscv-privileged.html
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  # Deploy HTML to GitHub pages.
+  deploy:
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

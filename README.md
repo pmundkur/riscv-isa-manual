@@ -1,3 +1,13 @@
+# RISC-V Instruction Set Manual - with Sail code!
+
+This is a modified version of the RISC-V ISA manual that has been updated to include Sail code from [the official `riscv-sail` model](). It is kept up-to-date with the upstream ISA manual by automatically pulling `main` every night.
+
+[View the manual here.](http://riscv-isa-manual.timhutt.co.uk/)
+
+Original README follows.
+
+-----------------------------------------------------------------------------
+
 # RISC-V Instruction Set Manual
 
 [![RISC-V ISA Build](https://github.com/riscv/riscv-isa-manual/actions/workflows/isa-build.yml/badge.svg)](https://github.com/riscv/riscv-isa-manual/actions/workflows/isa-build.yml)
