@@ -1082,9 +1082,7 @@ The function _processMarkers_ in the EMBench benchmark picojpeg in the following
 
 The prologue and epilogue compile with GCC10 to:
 
-[source,SAIL]
 ----
-
    0001098a <processMarkers>:
    1098a:       711d                    addi    sp,sp,-96 ;#cm.push(1)
    1098c:       c8ca                    sw      s2,80(sp) ;#cm.push(2)
@@ -1123,7 +1121,6 @@ The prologue and epilogue compile with GCC10 to:
 
 with the GCC option _-msave-restore_ the output is the following:
 
-[source,SAIL]
 ----
 0001080e <processMarkers>:
    1080e:       73a012ef                jal     t0,11f48 <__riscv_save_12>
@@ -1136,7 +1133,6 @@ with the GCC option _-msave-restore_ the output is the following:
 
 with PUSH/POPRET this reduces to
 
-[source,SAIL]
 ----
 0001080e <processMarkers>:
    1080e:       b8fa                    cm.push    {ra,s0-s11},-96
