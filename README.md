@@ -4,6 +4,36 @@ This is a modified version of the RISC-V ISA manual that has been updated to inc
 
 [View the manual here.](http://riscv-isa-manual.timhutt.co.uk/)
 
+To help adding more Sail snippets:
+
+1. Find a place in the manual to add a Sail snippet or replace a hard-coded one.
+2. Delete the hard-coded version e.g.
+
+```
+Operation::
+[source,sail]
+--
+function clause execute (SM3P0(rs1, rd)) = {
+  let r1     : bits(32) = X(rs1)[31..0];
+  let result : bits(32) =  r1 ^ rol32(r1,  9) ^ rol32(r1, 17);
+  X(rd) = EXTS(result);
+  RETIRE_SUCCESS
+}
+--
+```
+
+3. Change it to something like this:
+
+```
+Operation::
++
+sail::execute[clause="SM3P0(_, _)",part=body,unindent]
+```
+
+4. Build the manual `make build-html` and check it looks good.
+
+5. Make a merge request to this repo (not the upstream one!) targetting the `sail` branch.
+
 Original README follows.
 
 -----------------------------------------------------------------------------
