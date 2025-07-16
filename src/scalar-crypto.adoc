@@ -458,16 +458,8 @@ This instruction must _always_ be implemented such that its execution
 latency does not depend on the data being operated on.
 
 Operation::
-[source,sail]
---
-function clause execute (AES32DSI (bs,rs2,rs1,rd)) = {
-  let shamt   : bits( 5) = bs @ 0b000; /* shamt = bs*8 */
-  let si      : bits( 8) = (X(rs2)[31..0] >> shamt)[7..0]; /* SBox Input */
-  let so      : bits(32) = 0x000000 @ aes_sbox_inv(si);
-  let result  : bits(32) = X(rs1)[31..0] ^ rol32(so, unsigned(shamt));
-  X(rd) = EXTS(result); RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES32DSI(_, _, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -520,17 +512,8 @@ This instruction must _always_ be implemented such that its execution
 latency does not depend on the data being operated on.
 
 Operation::
-[source,sail]
---
-function clause execute (AES32DSMI (bs,rs2,rs1,rd)) = {
-  let shamt   : bits( 5) = bs @ 0b000; /* shamt = bs*8 */
-  let si      : bits( 8) = (X(rs2)[31..0] >> shamt)[7..0]; /* SBox Input */
-  let so      : bits( 8) = aes_sbox_inv(si);
-  let mixed   : bits(32) = aes_mixcolumn_byte_inv(so);
-  let result  : bits(32) = X(rs1)[31..0] ^ rol32(mixed, unsigned(shamt));
-  X(rd) = EXTS(result); RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES32DSMI(_, _, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -583,16 +566,8 @@ This instruction must _always_ be implemented such that its execution
 latency does not depend on the data being operated on.
 
 Operation::
-[source,sail]
---
-function clause execute (AES32ESI (bs,rs2,rs1,rd)) = {
-  let shamt   : bits( 5) = bs @ 0b000; /* shamt = bs*8 */
-  let si      : bits( 8) = (X(rs2)[31..0] >> shamt)[7..0]; /* SBox Input */
-  let so      : bits(32) = 0x000000 @ aes_sbox_fwd(si);
-  let result  : bits(32) = X(rs1)[31..0] ^ rol32(so, unsigned(shamt));
-  X(rd) = EXTS(result); RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES32ESI(_, _, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -645,17 +620,8 @@ This instruction must _always_ be implemented such that its execution
 latency does not depend on the data being operated on.
 
 Operation::
-[source,sail]
---
-function clause execute (AES32ESMI (bs,rs2,rs1,rd)) = {
-  let shamt   : bits( 5) = bs @ 0b000; /* shamt = bs*8 */
-  let si      : bits( 8) = (X(rs2)[31..0] >> shamt)[7..0]; /* SBox Input */
-  let so      : bits( 8) = aes_sbox_fwd(si);
-  let mixed   : bits(32) = aes_mixcolumn_byte_fwd(so);
-  let result  : bits(32) = X(rs1)[31..0] ^ rol32(mixed, unsigned(shamt));
-  X(rd) = EXTS(result); RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES32ESMI(_, _, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -721,15 +687,8 @@ Note the reversed register order of the second instruction.
 ====
 
 Operation::
-[source,sail]
---
-function clause execute (AES64DS(rs2, rs1, rd)) = {
-  let sr : bits(64) = aes_rv64_shiftrows_inv(X(rs2)[63..0], X(rs1)[63..0]);
-  let wd : bits(64) = sr[63..0];
-  X(rd) = aes_apply_inv_sbox_to_each_byte(wd);
-  RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES64DS(_, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -795,16 +754,8 @@ Note the reversed register order of the second instruction.
 ====
 
 Operation::
-[source,sail]
---
-function clause execute (AES64DSM(rs2, rs1, rd)) = {
-  let sr : bits(64) = aes_rv64_shiftrows_inv(X(rs2)[63..0], X(rs1)[63..0]);
-  let wd : bits(64) = sr[63..0];
-  let sb : bits(64) = aes_apply_inv_sbox_to_each_byte(wd);
-  X(rd)  = aes_mixcolumn_inv(sb[63..32]) @ aes_mixcolumn_inv(sb[31..0]);
-  RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES64DSM(_, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -870,15 +821,8 @@ Note the reversed register order of the second instruction.
 ====
 
 Operation::
-[source,sail]
---
-function clause execute (AES64ES(rs2, rs1, rd)) = {
-  let sr : bits(64) = aes_rv64_shiftrows_fwd(X(rs2)[63..0], X(rs1)[63..0]);
-  let wd : bits(64) = sr[63..0];
-  X(rd) = aes_apply_fwd_sbox_to_each_byte(wd);
-  RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES64ES(_, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -944,16 +888,8 @@ Note the reversed register order of the second instruction.
 ====
 
 Operation::
-[source,sail]
---
-function clause execute (AES64ESM(rs2, rs1, rd)) = {
-  let sr : bits(64) = aes_rv64_shiftrows_fwd(X(rs2)[63..0], X(rs1)[63..0]);
-  let wd : bits(64) = sr[63..0];
-  let sb : bits(64) = aes_apply_fwd_sbox_to_each_byte(wd);
-  X(rd)  =  aes_mixcolumn_fwd(sb[63..32]) @ aes_mixcolumn_fwd(sb[31..0]);
-  RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES64ESM(_, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -1010,15 +946,8 @@ This instruction must _always_ be implemented such that its execution
 latency does not depend on the data being operated on.
 
 Operation::
-[source,sail]
---
-function clause execute (AES64IM(rs1, rd)) = {
-  let w0 : bits(32) = aes_mixcolumn_inv(X(rs1)[31.. 0]);
-  let w1 : bits(32) = aes_mixcolumn_inv(X(rs1)[63..32]);
-  X(rd)  = w1 @ w0;
-  RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES64IM(_, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -1074,22 +1003,8 @@ Note that `rnum` must be in the range `0x0..0xA`.
 The values `0xB..0xF` are reserved.
 
 Operation::
-[source,sail]
---
-function clause execute (AES64KS1I(rnum, rs1, rd)) = {
-  if(unsigned(rnum) > 10) then {
-    handle_illegal();  RETIRE_SUCCESS
-  } else {
-    let tmp1 : bits(32) = X(rs1)[63..32];
-    let rc   : bits(32) = aes_decode_rcon(rnum); /* round number -> round constant */
-    let tmp2 : bits(32) = if (rnum ==0xA) then tmp1 else ror32(tmp1, 8);
-    let tmp3 : bits(32) = aes_subword_fwd(tmp2);
-    let result : bits(64) = (tmp3 ^ rc) @ (tmp3 ^ rc);
-    X(rd) = EXTZ(result);
-    RETIRE_SUCCESS
-  }
-}
---
++
+sail::execute[clause="AES64KS1I(_, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
@@ -1145,15 +1060,8 @@ This instruction must _always_ be implemented such that its execution
 latency does not depend on the data being operated on.
 
 Operation::
-[source,sail]
---
-function clause execute (AES64KS2(rs2, rs1, rd)) = {
-  let w0 : bits(32) = X(rs1)[63..32] ^ X(rs2)[31..0];
-  let w1 : bits(32) = X(rs1)[63..32] ^ X(rs2)[31..0] ^ X(rs2)[63..32];
-  X(rd)  = w1 @ w0;
-  RETIRE_SUCCESS
-}
---
++
+sail::execute[clause="AES64KS2(_, _, _)",part=body,unindent]
 
 Included in::
 [%header,cols="4,2,2"]
