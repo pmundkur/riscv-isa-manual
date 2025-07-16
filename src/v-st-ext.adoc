@@ -539,8 +539,8 @@ The `vstart` CSR is writable by unprivileged code, but non-zero
 `vstart` values may cause vector instructions to run substantially
 slower on some implementations, so `vstart` should not be used by
 application programmers.  A few vector instructions cannot be
-executed with a non-zero `vstart` value and will raise an illegal
-instruction exception as defined below.
+executed with a non-zero `vstart` value and will raise an
+illegal-instruction exception as defined below.
 
 NOTE: Making `vstart` visible to unprivileged code supports user-level
 threading libraries.
@@ -3041,7 +3041,7 @@ with an EEW equal to SEW.
 NOTE: Implementations that internally reorganize data according to EEW
 can shuffle the internal representation according to SEW.
 Implementations that do not internally reorganize data can dynamically
-elide this instruction, and treat as a NOP.
+elide this instruction (aside from resetting `vstart` to 0).
 
 NOTE: The `vmv.v.v vd, vd` instruction is not a RISC-V HINT as a
 tail-agnostic setting may cause an architectural state change on some
@@ -3874,8 +3874,8 @@ copied to the destination (e.g., by explicitly setting `vl`=1 and
 performing a register-register copy).
 
 Traps on vector reduction instructions are always reported with a
-`vstart` of 0.  Vector reduction operations raise an illegal
-instruction exception if `vstart` is non-zero.
+`vstart` of 0.  Vector reduction operations raise an
+illegal-instruction exception if `vstart` is non-zero.
 
 The assembler syntax for a reduction operation is `vredop.vs`, where
 the `.vs` suffix denotes the first operand is a vector register group
@@ -4818,9 +4818,10 @@ NOTE: The usual property that no elements are written if `vstart` {ge} `vl`
 does not apply to these instructions.
 Instead, no elements are written if `vstart` {ge} `evl`.
 
-NOTE: If `vd` is equal to `vs2` the instruction is an architectural
-NOP, but is treated as a hint to implementations that rearrange data
-internally that the register group will next be accessed with an EEW
+NOTE: If `vd` is equal to `vs2`, the instruction does not change any
+vector register state.
+Implementations that rearrange data internally can treat this instruction
+as a hint that the register group will next be accessed with an EEW
 equal to SEW.
 
 The instruction is encoded as an OPIVI instruction.  The number of
