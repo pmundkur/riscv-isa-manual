@@ -380,12 +380,7 @@ None
 
 Operation:
 
-[source,sail]
-----
-//This is not SAIL, it's pseudocode. The SAIL hasn't been written yet.
-
-X(rdc) = EXTZ(mem[X(rs1c)+EXTZ(uimm)][7..0]);
-----
+sail::execute[clause="C_LBU(_, _, _)",part=body,unindent]
 
 <<<
 [#insns-c_lhu,reftext="Load unsigned halfword, 16-bit encoding"]
@@ -441,12 +436,7 @@ None
 
 Operation:
 
-[source,sail]
---
-//This is not SAIL, it's pseudocode. The SAIL hasn't been written yet.
-
-X(rdc) = EXTZ(load_mem[X(rs1c)+EXTZ(uimm)][15..0]);
---
+sail::execute[clause="C_LHU(_, _, _)",part=body,unindent]
 
 <<<
 [#insns-c_lh,reftext="Load signed halfword, 16-bit encoding"]
@@ -502,12 +492,7 @@ None
 
 Operation:
 
-[source,sail]
-----
-//This is not SAIL, it's pseudocode. The SAIL hasn't been written yet.
-
-X(rdc) = EXTS(load_mem[X(rs1c)+EXTZ(uimm)][15..0]);
-----
+sail::execute[clause="C_LH(_, _, _)",part=body,unindent]
 
 <<<
 [#insns-c_sb,reftext="Store byte, 16-bit encoding"]
@@ -563,12 +548,7 @@ None
 
 Operation:
 
-[source,sail]
---
-//This is not SAIL, it's pseudocode. The SAIL hasn't been written yet.
-
-mem[X(rs1c)+EXTZ(uimm)][7..0] = X(rs2c)
---
+sail::execute[clause="C_SB(_, _, _)",part=body,unindent]
 
 <<<
 [#insns-c_sh,reftext="Store halfword, 16-bit encoding"]
@@ -624,12 +604,7 @@ None
 //<<insns-sh>>
 
 Operation:
-[source,sail]
-----
-//This is not SAIL, it's pseudocode. The SAIL hasn't been written yet.
-
-mem[X(rs1c)+EXTZ(uimm)][15..0] = X(rs2c)
-----
+sail::execute[clause="C_SH(_, _, _)",part=body,unindent]
 
 <<<
 [#insns-c_zext_b,reftext="Zero extend byte, 16-bit encoding"]
@@ -686,10 +661,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_.
 
 Operation:
 
-[source,sail]
-----
-X(rsdc) = EXTZ(X(rsdc)[7..0]);
-----
+sail::execute[clause="C_ZEXT_B(_)",part=body,unindent]
 
 <<<
 [#insns-c_sext_b,reftext="Sign extend byte, 16-bit encoding"]
@@ -742,10 +714,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_.
 
 Operation:
 
-[source,sail]
-----
-X(rsdc) = EXTS(X(rsdc)[7..0]);
-----
+sail::execute[clause="C_SEXT_B(_)",part=body,unindent]
 
 <<<
 [#insns-c_zext_h,reftext="Zero extend halfword, 16-bit encoding"]
@@ -798,11 +767,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_.
 ====
 
 Operation:
-
-[source,sail]
-----
-X(rsdc) = EXTZ(X(rsdc)[15..0]);
-----
+sail::execute[clause="C_ZEXT_H(_)",part=body,unindent]
 
 <<<
 [#insns-c_sext_h,reftext="Sign extend halfword, 16-bit encoding"]
@@ -856,10 +821,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_.
 
 Operation:
 
-[source,sail]
-----
-X(rsdc) = EXTS(X(rsdc)[15..0]);
-----
+sail::execute[clause="C_SEXT_H(_)",part=body,unindent]
 
 <<<
 [#insns-c_zext_w,reftext="Zero extend word, 16-bit encoding"]
@@ -916,10 +878,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_.
 
 Operation:
 
-[source,sail]
-----
-X(rsdc) = EXTZ(X(rsdc)[31..0]);
-----
+sail::execute[clause="C_ZEXT_W(_)",part=body,unindent]
 
 <<<
 [#insns-c_not,reftext="Bitwise not, 16-bit encoding"]
@@ -974,10 +933,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_.
 
 Operation:
 
-[source,sail]
-----
-X(rsdc) = X(rsdc) XOR -1;
-----
+sail::execute[clause="C_NOT(_)",part=body,unindent]
 
 <<<
 [#insns-c_mul,reftext="Multiply, 16-bit encoding"]
@@ -1029,11 +985,7 @@ The SAIL module variable for _rd'/rs1'_ is called _rsdc_, and for _rs2'_ is call
 
 Operation:
 
-[source,sail]
-----
-let result_wide = to_bits(2 * sizeof(xlen), signed(X(rsdc)) * signed(X(rs2c)));
-X(rsdc) = result_wide[(sizeof(xlen) - 1) .. 0];
-----
+sail::execute[clause="C_MUL(_, _)",part=body,unindent]
 
 <<<
 
